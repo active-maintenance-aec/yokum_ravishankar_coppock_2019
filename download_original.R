@@ -75,15 +75,21 @@ if (!all(verified$md5_matches, verified$sha256_matches, verified$bytes_match)) {
 }
 
 # The deposit is the whole of original/, so anything else under it came from
-# somewhere other than OSF and should not be treated as part of the archive.
-present <- list.files(here::here("original"), recursive = TRUE)
-extra <- setdiff(present, manifest$file)
+# somewhere other than OSF and should not be treated as part of the archive. This runs
+# after the checksums, so a deposited file renamed by hand fails on its own checksum
+# rather than passing here as an unlisted extra. all.files = TRUE is not optional:
+# without it a stray dotfile passes unseen, and a deposit can ship dotfiles of its own,
+# which the manifest then has to list.
+extra <- setdiff(
+  list.files(here::here("original"), recursive = TRUE, all.files = TRUE, no.. = TRUE),
+  manifest$file
+)
 
 if (length(extra) > 0) {
-  print(str_glue("original/ holds {length(extra)} file(s) that are not in the deposit:"))
-  print(extra)
-  stop("original/ must contain the deposit and nothing else.")
+  stop("original/ holds files the manifest does not list: ",
+       paste(extra, collapse = ", "),
+       ". Move them elsewhere; original/ is the deposit and only the deposit.")
 }
 
-print(str_glue("All {nrow(verified)} deposited files verified on both MD5 and SHA-256, ",
-               "and original/ contains nothing else. Archive: {archive_doi}"))
+print(str_glue("All {nrow(verified)} deposited files verified on MD5, SHA-256 and byte ",
+               "size, and original/ contains nothing else. Archive: {archive_doi}"))
