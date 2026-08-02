@@ -1,0 +1,4 @@
+outcome,outcome_variable,estimate,std_error,p_value,conf_low,conf_high,constant,constant_se,n,r_squared
+Use of Force,use_of_force_other_1000_rate_post,1.4748739482861795e-14,2.535431515830966,0.9999999999999953,-4.972489070991464,4.972489070991494,1.7927964188247243,1.7928996107136634,1922,0
+Use of Force (Serious),use_of_force_serious_other_1000_rate_post,0,0,NA,0,0,0,0,1922,NA
+Use of Force (Other),use_of_force_less_serious_other_1000_rate_post,1.4748739482861795e-14,2.535431515830966,0.9999999999999953,-4.972489070991464,4.972489070991494,1.7927964188247243,1.7928996107136634,1922,0

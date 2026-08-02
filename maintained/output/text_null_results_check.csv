@@ -1,0 +1,3 @@
+estimator,n_outcomes,n_outcomes_not_estimable,n_p_below_0.05,n_p_below_0.10,smallest_p_value,outcome_with_smallest_p
+Difference-in-means,45,2,0,0,0.16705318258400492,Complaints
+"OLS, pretreatment outcome only",45,2,0,0,0.1546855565257525,Complaints
