@@ -16,6 +16,8 @@
 #   again, so the archive and the rewrite are compared on exactly the same outcomes
 #   in exactly the same order.
 
+here::i_am("ground_truth/archive_estimates.R")
+
 source(here::here("maintained", "helpers.R"))
 
 officer_level_archive <- read_csv(file.path(data_dir, "officer_level_anon.csv"), show_col_types = FALSE)

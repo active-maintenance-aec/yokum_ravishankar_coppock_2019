@@ -85,6 +85,13 @@ paper_dim <- tribble(
   "Table C.37", "table_c37_compliance", "Average length of videos in minutes", 10.3, 0.2, 0.8, 0.1
 )
 
+# Every appendix C regression the deposit refits differs from the published one in the
+# same single respect, so the sentence saying so is written once and attached to each
+# row it explains rather than retyped beside the sample sizes alone.
+district_note <- paste0(
+  "The deposited script fits every one of these models on all 2,224 officers in the ",
+  "trial, not on the 1,922 in the seven patrol districts that the published tables report")
+
 quantity_labels <- c(estimate = "estimate on Officer Assigned BWC",
                      std_error = "standard error on Officer Assigned BWC",
                      constant = "constant",
@@ -132,7 +139,7 @@ n_rows <- paper_dim |>
     value_paper = 1922,
     value_rewrite = n,
     digits = 0,
-    notes = "The deposited script fits every one of these models on all 2,224 officers in the trial, not on the 1,922 in the seven patrol districts that the published tables report"
+    notes = district_note
   )
 
 # Appendix Table A.1 ----
@@ -344,14 +351,42 @@ ground_truth <- bind_rows(dim_rows, n_rows, a1_rows, a4_rows, text_rows, float_r
     paper_id = "yokum_ravishankar_coppock_2019",
     match = agrees(value_script, value_paper, digits),
     match_rewrite = agrees(value_rewrite, value_paper, digits),
+    # A row is adverse when EITHER verdict is 0. Keying the locus on match_rewrite alone
+    # exempts the archive-fails-while-the-rewrite-matches shape, which is every appendix
+    # C regression cell the district filter moves and 189 of the rows below.
+    adverse = (!is.na(match) & match == 0) | (!is.na(match_rewrite) & match_rewrite == 0),
+    notes = if_else(adverse & str_starts(table_figure, "Table C") & notes == "",
+                    district_note, notes),
     defect_locus = case_when(
-      is.na(match_rewrite) | match_rewrite == 1 ~ NA_character_,
+      !adverse ~ NA_character_,
+      # The published specification is the one the rewrite fits; the deposit's differs
+      # only in dropping the district restriction, so the deposit is the side that fails.
+      str_starts(table_figure, "Table C") ~ "archive",
       claim == "Videos per year, officers assigned a camera" ~ "paper_internal",
       .default = "unresolved"
     )
   ) |>
   select(paper_id, table_figure, claim, value_script, value_paper, match,
          value_rewrite, match_rewrite, defect_locus, notes)
+
+# Gate: a verdict and a locus go together ----
+# The locus rule has three states. An adverse row, meaning either verdict is 0, must name
+# where the fault lies, since a failure with no locus reads as a fault in the rewrite and
+# almost never is. A clean match, meaning both verdicts are 1, must not carry one. A row
+# with no verdict may. This repository had no such gate, which is how 189 adverse rows
+# reached the committed file with no locus at all.
+gt_adverse <- (!is.na(ground_truth$match) & ground_truth$match == 0) |
+  (!is.na(ground_truth$match_rewrite) & ground_truth$match_rewrite == 0)
+gt_clean <- !is.na(ground_truth$match) & ground_truth$match == 1 &
+  !is.na(ground_truth$match_rewrite) & ground_truth$match_rewrite == 1
+
+if (any(gt_adverse & is.na(ground_truth$defect_locus)) ||
+    any(gt_clean & !is.na(ground_truth$defect_locus))) {
+  print(ground_truth[(gt_adverse & is.na(ground_truth$defect_locus)) |
+                       (gt_clean & !is.na(ground_truth$defect_locus)), ] |>
+          select(table_figure, claim, match, match_rewrite, defect_locus), n = 40)
+  stop("Rows carrying a failure with no locus, or a clean match with one.")
+}
 
 write_csv(ground_truth, here::here("ground_truth", "yokum_ravishankar_coppock_2019_ground_truth.csv"))
 
