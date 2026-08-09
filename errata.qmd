@@ -1,0 +1,151 @@
+---
+title: "Errata"
+subtitle: "On Yokum, Ravishankar and Coppock (2019), *Proceedings of the National Academy of Sciences* 116(21)"
+format:
+  pdf:
+    output-file: yokum_ravishankar_coppock_2019_errata.pdf
+    geometry: margin=1.25in
+    fontsize: 11pt
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+library(here)
+library(tidyverse)
+here::i_am("errata.qmd")
+
+# Every number in the corrected sentences and in the notes beneath them is
+# computed here, from the maintained pipeline's output, at the time this document
+# is rendered. Nothing below is typed.
+out <- function(f) read_csv(here("maintained", "output", f), show_col_types = FALSE)
+
+# Entry 1: the window the two time series figures actually cover.
+e3 <- out("figure_e3_use_of_force_time_series.csv")
+e4 <- out("figure_e4_complaints_time_series.csv")
+stopifnot(identical(range(e3$relative_month), range(e4$relative_month)))
+window_before <- -min(e3$relative_month)
+window_after <- max(e3$relative_month)
+n_periods <- n_distinct(e3$relative_month)
+period_length <- unique(diff(sort(unique(e3$relative_month))))
+stopifnot(length(period_length) == 1)
+
+# Entry 2: the compliance means, and what Table C.37 prints for the same quantity.
+compliance <- out("text_compliance_means.csv") |>
+  filter(sample == "Seven patrol districts")
+videos_treated <- compliance$videos_per_year[compliance$assignment == "Officer assigned BWC"]
+videos_control <- compliance$videos_per_year[compliance$assignment == "Control"]
+
+c37 <- out("table_c37_compliance.csv") |> filter(outcome == "Videos per year")
+c37_control <- c37$constant
+c37_effect <- c37$estimate
+
+# The three other samples and weighting schemes a reader might suppose the
+# sentence uses, computed rather than asserted.
+officer_district <- read_rds(here("maintained", "output", "officer_level_district.rds"))
+officer_full <- read_rds(here("maintained", "output", "officer_level_full.rds"))
+videos_treated_unweighted <- mean(officer_district$videos_rate_post[officer_district$Z == 1])
+videos_trial_weighted <- weighted.mean(officer_full$videos_rate_post[officer_full$Z == 1],
+                                       officer_full$weights[officer_full$Z == 1])
+videos_trial_unweighted <- mean(officer_full$videos_rate_post[officer_full$Z == 1])
+n_trial <- format(nrow(officer_full), big.mark = ",")
+
+# Table C.37 prints its cells at one decimal place, and the sum of the two the
+# reader sees is the quantity the sentence names.
+f1 <- function(x) sprintf("%.1f", x)
+f0 <- function(x) sprintf("%.0f", x)
+table_implied <- as.numeric(f1(c37_control)) + as.numeric(f1(c37_effect))
+
+# Entry 3: the pilot districts' assignment counts.
+a1 <- read_csv(here("maintained", "output", "table_a1_random_assignment.csv"),
+               col_types = cols(district = col_character(), .default = col_guess()))
+pilot <- a1 |> filter(block %in% c("5D", "7D")) |> arrange(block)
+pilot_control <- sum(pilot$control)
+pilot_bwc <- sum(pilot$bwc)
+
+pilot_line <- paste(
+  paste0(pilot$block, " (", pilot$control, " control, ", pilot$bwc, " camera)"),
+  collapse = " and ")
+
+# Entry 4: the supplement's own section lettering, transcribed from its contents
+# page, which is the only place the answer lives.
+# The figure label is transcribed from the same contents page and the page the
+# figure sits on.
+alternate_figure <- "D.2"
+
+appendix_contents <- tribble(
+  ~letter, ~title,
+  "A", "Methodology",
+  "B", "A Novel Approach to Program Evaluation",
+  "C", "Full Results",
+  "D", "Application of Alternate Measurement Strategy",
+  "E", "Supplementary Analyses",
+  "F", "MPD General Order SPT-302.13",
+  "G", "Preanalysis Plan"
+)
+alternate_letter <- appendix_contents$letter[
+  appendix_contents$title == "Application of Alternate Measurement Strategy"]
+alternate_position <- match(alternate_letter, appendix_contents$letter)
+section_letters <- paste(appendix_contents$letter, collapse = ", ")
+
+ordinal <- function(n) {
+  words <- c("first", "second", "third", "fourth", "fifth", "sixth", "seventh")
+  stopifnot(n >= 1, n <= length(words))
+  words[n]
+}
+```
+
+This note lists four corrections to "A randomized control trial evaluating the effects of police body-worn cameras," published in the *Proceedings of the National Academy of Sciences* 116(21):10329--10332, doi [10.1073/pnas.1814773116](https://doi.org/10.1073/pnas.1814773116). The first covers two figure captions that misstate the window the figures cover; the second a compliance figure that disagrees with the article's own Table C.37; the third a count that disagrees with the article's own Table A.1; the fourth a cross-reference to a section the supplement does not have. **None changes any conclusion of the paper.** Every treatment effect estimate, standard error, constant and sample size in Tables C.5 through C.37 reproduces exactly, and no estimate anywhere in the article moves.
+
+The numbers in the corrected sentences and every number in the notes beneath them are computed from the deposited replication archive ([10.17605/OSF.IO/P6VUH](https://doi.org/10.17605/OSF.IO/P6VUH)) at the time this document is rendered. The code and output supporting the corrections are at [github.com/active-maintenance-aec/yokum_ravishankar_coppock_2019](https://github.com/active-maintenance-aec/yokum_ravishankar_coppock_2019).
+
+## 1. The captions of supplementary Figures E.3 and E.4 name the wrong window
+
+> Figure E.3: Uses of Force per 1000 Officers, 90 days before and after BWC deployment, broken out by police district. This figure plots pre- and post-treatment uses of force for both control and treatment group officers in each police district. As the chart indicates, there is no statistically significant difference between the two groups in either the 90-day period before or after the deployment of BWCs (which occurs on day 0).
+
+Corrected:
+
+> Figure E.3: Uses of Force per 1000 Officers, **`r window_before` days before and `r window_after` days after** BWC deployment, broken out by police district. This figure plots pre- and post-treatment uses of force for both control and treatment group officers in each police district. As the chart indicates, there is no statistically significant difference between the two groups in either **the period** before or after the deployment of BWCs (which occurs on day 0).
+
+> Figure E.4: Complaints per 1000 Officers, 90 days before and after BWC deployment, broken out by police district. This figure plots pre- and post-treatment complaints for both control and treatment group officers in each police district. As the chart indicates, there is no statistically significant difference between the two groups in either the 90-day period before or after the deployment of BWCs (which occurs on day 0).
+
+Corrected:
+
+> Figure E.4: Complaints per 1000 Officers, **`r window_before` days before and `r window_after` days after** BWC deployment, broken out by police district. This figure plots pre- and post-treatment complaints for both control and treatment group officers in each police district. As the chart indicates, there is no statistically significant difference between the two groups in either **the period** before or after the deployment of BWCs (which occurs on day 0).
+
+Both figures plot the deposited officer-day panel collapsed to `r period_length`-day periods, and that panel runs from `r window_before` days before each district's deployment date to `r window_after` days after it, `r n_periods` periods in all. The published horizontal axis is broken at $-750$, $-500$, $-250$, $0$, $250$ and $500$ and carries points across that whole span, so the figures are correct and the captions describe something narrower than what is drawn.
+
+The wording appears to have travelled from a figure the supplement does not print. The deposited `time_series_plot.R` draws each outcome twice, once pooled across districts and once faceted by district, and only the pooled version filters the panel to the periods within 100 days of deployment, which on a 30-day grid is exactly the 90 days before and after that the caption names. The faceted version, which is the one published, carries no such filter. The correction is to the caption alone; nothing in the figures changes.
+
+Neither caption's claim about statistical significance is corrected here, because the deposit contains no test behind it. The figures are scatterplots with smoothed conditional means and shaded bands, and the reader is being pointed at overlapping bands rather than at an estimate.
+
+## 2. Treatment officers uploaded about `r f0(videos_treated)` videos a year, not about 665
+
+> On average, treatment officers uploaded about 665 videos annually (compared with 14 videos uploaded among control officers).
+
+Corrected:
+
+> On average, treatment officers uploaded about **`r f0(videos_treated)`** videos annually (compared with `r f0(videos_control)` videos uploaded among control officers).
+
+The article's own supplementary Table C.37 gives the same quantity. Its control mean is `r f1(c37_control)` videos a year and its estimated effect of being assigned a camera is `r f1(c37_effect)`, which sum to `r f1(table_implied)`. Computed directly on the analysis sample, the inverse-probability-weighted mean among officers assigned a camera is `r sprintf("%.1f", videos_treated)`. No sample or weighting scheme in the deposit returns 665: dropping the weights gives `r f1(videos_treated_unweighted)` on the seven patrol districts, and taking all `r n_trial` officers in the trial gives `r f1(videos_trial_weighted)` weighted and `r f1(videos_trial_unweighted)` unweighted. The control figure of `r f0(videos_control)` is unchanged and is restated above only because it sits in the same sentence.
+
+The manipulation check the sentence supports is unaffected: officers assigned a camera uploaded roughly `r f0(videos_treated / videos_control)` times as many videos as control officers, and the difference is significant at any conventional level.
+
+## 3. `r pilot_control` officers in the pilot were not given cameras, not 180
+
+> In June 2015, eligible officers in these two districts were randomly assigned to receive a BWC or not: 325 officers were outfitted with BWCs, while 180 were not given cameras (the "control" group).
+
+Corrected:
+
+> In June 2015, eligible officers in these two districts were randomly assigned to receive a BWC or not: `r pilot_bwc` officers were outfitted with BWCs, while **`r pilot_control`** were not given cameras (the "control" group).
+
+The two pilot districts are `r pilot_line` in the supplement's own Table A.1. Their camera counts sum to `r pilot_bwc`, which is exactly the figure the sentence gives; their control counts sum to `r pilot_control`. The deposited officer file agrees with Table A.1 on both, carrying `r pilot_control` control and `r pilot_bwc` camera officers across the two districts. Nothing else in the article depends on the pilot's control count.
+
+## 4. The alternate measurement plots are in Appendix `r alternate_letter`, not in a Section 4
+
+> The coefficient plots for each of the outcomes using this alternate measurement strategy are provided in Section 4.
+
+Corrected:
+
+> The coefficient plots for each of the outcomes using this alternate measurement strategy are provided in **Appendix `r alternate_letter`**.
+
+The supplement's sections are lettered `r section_letters` and it has no Section 4. The alternate measurement plots are Figure `r alternate_figure`, the sole content of Appendix `r alternate_letter`, "Application of Alternate Measurement Strategy", which is the `r ordinal(alternate_position)` lettered section and is presumably where the numeral came from.

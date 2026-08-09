@@ -11,6 +11,9 @@
 - [The maintained rewrite](#the-maintained-rewrite)
   - [Coverage](#coverage)
 - [Ground truth](#ground-truth)
+- [The extraction and the two
+  instruments](#the-extraction-and-the-two-instruments)
+- [Errata](#errata)
 - [Figures](#figures)
 - [Verification](#verification)
 
@@ -32,6 +35,7 @@ reproduce.
 | Supplementary appendix | https://www.pnas.org/lookup/suppl/doi:10.1073/pnas.1814773116/-/DCSupplemental |
 | Deposited archive | https://doi.org/10.17605/OSF.IO/P6VUH |
 | Preanalysis plan | Included in the deposited archive and reprinted as Appendix G |
+| Errata | yokum_ravishankar_coppock_2019_errata.pdf, in this repository |
 
 Where the paper and its materials live. Both DOIs were resolved and
 checked against the registration agency’s record.
@@ -44,8 +48,11 @@ checked against the registration agency’s record.
       original_manifest.csv       the deposit's file names, sizes and checksums
       original/                   the deposited archive (not redistributed here)
       maintained/                 the rewrite, one script per published float
+      maintained/in_text_claims.R every quantity the article states in a sentence
       maintained/output/          everything the rewrite produces
       ground_truth/               published values against archive and rewrite output
+      ground_truth/published_claims.csv   the numeric-token extraction from the paper
+      errata.qmd                  four corrections to the published text
       report/                     the PDF build of this report
 
 To reproduce: clone the repository, open
@@ -71,21 +78,30 @@ from the two coefficient plot scripts.
 The archive’s one table-producing script fits every model on all 2,224
 officers in the trial. The published tables report 1,922, the officers
 in the seven patrol districts, which is the sample the article says in
-its Methods section it analyses. Of the 205 published table values the
-archive’s own output can be compared against, 189 disagree and 16 agree,
-and every one of the 16 agreements is a cell whose published value is
+its Methods section it analyses. Of the 280 published table values the
+archive’s own output can be compared against, 227 disagree and 53 agree,
+and every one of the 53 agreements is a cell whose published value is
 zero or a standard error that happens to round the same way.
 `regression_tables.R` produces those numbers with no error, no warning
 and nothing on screen to suggest a problem.
 
 **Does the maintained rewrite reproduce the paper?** Yes, on everything
-the deposit can support. Of 264 checkable published values, 263 agree to
-the precision the paper prints and 1 does not. The single disagreement
-is an in-text number that disagrees with the paper’s own appendix table.
-A further 30 rows record published quantities that no deposit could
-reproduce, almost all of them because the officer covariates behind the
-covariate-adjusted results cannot be published without identifying
-individual officers.
+the deposit can support. Of 381 checkable published values, 379 agree to
+the precision the paper prints and 2 do not. A further 60 rows record
+published quantities that no deposit could reproduce, almost all of them
+because the officer covariates behind the covariate-adjusted results
+cannot be published without identifying individual officers. Beside the
+numeric comparisons, 17 claims the paper states in words are given a
+computed truth value; 14 hold and 3 do not.
+
+**Does the paper agree with itself?** In 5 places it does not, and those
+are collected in `yokum_ravishankar_coppock_2019_errata.pdf` at the root
+of this repository. Two figure captions name a window an order of
+magnitude shorter than the one their figures cover, one compliance
+figure disagrees with the article’s own Table C.37, one pilot count
+disagrees with its own Table A.1, and one cross-reference points at a
+section the supplement does not have. None of the five changes a
+conclusion, and none touches an estimate.
 
 # The paper
 
@@ -262,8 +278,9 @@ through `7D` comes back as the numbers 1 through 7.
 
 ## Coverage
 
-Every published float has at least one row in the ground truth. Five are
-recorded there as having no source in the deposit at all:
+Every published float has a row in the ground truth and a count of what
+it prints in the extraction. Five are recorded as having no source in
+the deposit at all:
 
 - **Tables A.2 and A.3**, the pretreatment distributions of officer
   race, sex and length of service. Those covariates are not deposited.
@@ -281,7 +298,7 @@ recorded there as having no source in the deposit at all:
 
 # Ground truth
 
-`ground_truth/build_ground_truth.R` assembles 294 rows. Each carries the
+`ground_truth/build_ground_truth.R` assembles 441 rows. Each carries the
 published value, typed from the article or the appendix and used only as
 a comparison target; the value the deposited specification produces,
 read from a file written by `ground_truth/archive_estimates.R`; and the
@@ -290,21 +307,38 @@ number is an input to any computation anywhere in this repository.
 
 | Comparison                                | Agree | Disagree | Not checkable |
 |:------------------------------------------|------:|---------:|--------------:|
-| Deposited specification against the paper |    16 |      189 |            89 |
-| Maintained rewrite against the paper      |   263 |        1 |            30 |
+| Deposited specification against the paper |    53 |      227 |           161 |
+| Maintained rewrite against the paper      |   379 |        2 |            60 |
 
 Ground truth, all rows. A row is not checkable when the paper states no
 number, or when nothing in the deposit can produce one.
 
-| Published float             | Rows | Rewrite agrees | Rewrite disagrees |
-|:----------------------------|-----:|---------------:|------------------:|
-| Appendix Tables C.5 to C.37 |  205 |            205 |                 0 |
-| Appendix Tables A.1 and A.4 |   43 |             43 |                 0 |
-| In-text quantities          |   16 |             15 |                 1 |
+| Where the number appears | Rows | Rewrite agrees | Rewrite disagrees |
+|:---|---:|---:|---:|
+| Appendix Tables A.1 and A.4 | 43 | 43 | 0 |
+| Figure captions and plotted counts | 9 | 9 | 0 |
+| Appendix Tables C.5 to C.37 | 280 | 280 | 0 |
+| Quantities stated in sentences and table notes | 49 | 47 | 2 |
 
 Checkable rows by where the number appears.
 
-The one disagreement is the compliance sentence in Methods. The article
+Every one of the 280 cells the odd-numbered appendix tables print
+reproduces exactly, as do all 36 cells of Table A.1 and the seven of
+Table A.4’s ten deployment dates that the deposited officer-day panel
+covers.
+
+| Where | Claim | Paper says | Data give |
+|:---|:---|:---|:---|
+| Figure E.3 | Days before and after deployment the figure covers | 90 | FALSE |
+| Figure E.4 | Days before and after deployment the figure covers | 90 | FALSE |
+| Text, Methods | Videos per year, officers assigned a camera | 665 | 663.1 |
+| Text, Appendix A | Pilot officers not given cameras | 180 | 178.0 |
+| Text, Appendix A.1 | The alternate measurement plots are said to be in Section 4 | \- | FALSE |
+
+The rows where the paper disagrees with itself. Each is an entry in the
+errata.
+
+The compliance sentence in Methods is the sharpest of them. The article
 says treatment officers uploaded “about 665” videos a year. The weighted
 mean in the analysis sample is 663.1, which is also what the article’s
 own Table C.37 implies, since its constant of 13.9 plus its coefficient
@@ -313,21 +347,132 @@ deposit returns 665. The gap is two videos out of 663 and changes
 nothing, but the sentence and the table it summarizes do not agree with
 each other.
 
-Two checks in the ground truth are of claims the paper makes in words
-and supports with no table.
+# The extraction and the two instruments
 
-| Claim | Paper implies | Rewrite finds |
-|:---|---:|---:|
-| Outcomes significant at conventional levels | 0 | 0 |
-| Districts with a significant effect on use of force | 0 | 0 |
+The ground truth answers “does this published number reproduce?” It
+cannot answer “is this published number in the ground truth at all?”,
+and that second question is where the errors in this article turned out
+to live. Two further files answer it.
 
-Claims stated in prose and checked against the data.
+`ground_truth/published_claims.csv` is the extraction: every numeric
+token in the article and in its supplement, read line by line rather
+than searched for, classified by hand into the five kinds a claim can
+be. It carries 191 rows. `pipeline` claims are quantities the analysis
+produces, `descriptive` claims are assertions about shape, sign or count
+that need a truth value rather than a number, `definitional` claims are
+scale endpoints and design constants, `structural` claims are page
+furniture and float inventories, and `transcribed` claims are numbers
+copied from another document and unable to move with the pipeline.
 
-Both hold. Across the 45 outcomes, no unadjusted estimate reaches p \<
-0.10, let alone p \< 0.05; two outcomes, serious uses of force against
-white and against other-race civilians, are identically zero throughout
-the posttreatment window and have no p-value at all. District by
-district, no estimate on use of force is significant at the 0.05 level.
+| Kind of claim | Rows | Need a block |
+|:--------------|-----:|-------------:|
+| definitional  |   45 |           35 |
+| descriptive   |   23 |           23 |
+| pipeline      |   27 |           27 |
+| structural    |   84 |            4 |
+| transcribed   |   12 |            0 |
+
+The extraction from the article and its supplement.
+
+The coverage boundary is stated rather than assumed. Inside it are the
+article’s body, from the abstract through the Discussion, and supplement
+sections A through E, including every table body, figure caption and
+table note. Outside it are three classes, each recorded in the
+extraction as a row of its own: the numbered reference list and the
+bracketed citation markers in the body; supplement Appendix F, which
+reproduces MPD General Order SPT-302.13 verbatim; and supplement
+Appendix G, which reprints the preanalysis plan as a separately
+paginated document. The last two are transcriptions of prior documents,
+so none of their numbers can move with the pipeline. Page numbers, ZIP
+codes, statute numbers, disposition codes, an IRB protocol number and
+the DOI are recorded as structural rows and are not claims about
+anything the data could contradict.
+
+The extraction also counts what each published float prints, which is
+what makes partial coverage visible.
+
+| Published float | Floats | Numbers published | Covered | Reproduced by the rewrite |
+|:---|---:|---:|---:|---:|
+| Appendix Tables A.1 and A.4 | 2 | 46 | 46 | 43 |
+| Appendix Tables A.2 and A.3 | 2 | 20 | 0 | 0 |
+| Figures 1 and C.1 | 2 | 96 | 48 | 48 |
+| Figures D.2, E.3, E.4 and E.5 | 4 | 90 | 0 | 0 |
+| Appendix Tables C.5 to C.37, odd numbered | 17 | 280 | 280 | 280 |
+| Appendix Tables C.6 to C.36, even numbered | 16 | 706 | 0 | 0 |
+
+What each published float prints, and how much of it the ground truth
+compares. The two coefficient plots print no estimate on their faces, so
+their count is what they plot.
+
+374 of the 1238 numbers the published floats carry are compared cell by
+cell. The rest are the sixteen covariate-adjusted tables, the two
+pretreatment covariate tables and the alternate-strategy figure, all of
+which rest on officer covariates the deposit cannot contain.
+
+`maintained/in_text_claims.R` is the second instrument. Every claim the
+extraction marks as needing a block, 89 of them, is recomputed there
+from `maintained/output/` beside the sentence that states it, and
+printed as a labelled line. It reads the extraction, so that a block can
+name the article’s own precision, and it never reads the ground truth,
+because agreeing with the comparison would prove nothing. Where
+`build_ground_truth.R` reaches a quantity through one of the
+`text_*.csv` summaries, this file goes back to the table or the cleaned
+data that summary was built from, and where the build goes through a
+table, the claims file goes through the summary. The two derivations are
+separate on purpose: where they disagree, one of them is wrong.
+
+`build_ground_truth.R` runs the coverage gate, in this order. Checks
+that depend only on the extraction come first, so that a wrong precision
+trips its own check rather than the value comparison downstream:
+identifiers are unique, claim types and comparison operators are drawn
+from the allowed sets, every `pipeline` and `descriptive` row is marked
+as needing a block, and every stored published value survives a round
+trip through the number of decimals recorded beside it. The locus rule
+follows in all three of its states: a row where either verdict is
+adverse must name where the fault lies, a clean match must not, and a
+row with no verdict may. The extraction is then reconciled against the
+ground truth’s own transcription of the same pages, and the float
+inventory against what the ground truth covers. Last, the claims file is
+run non-interactively into its own environment, its output is captured,
+and the printed claim lines are counted: 89 printed against 89 required,
+with the identifiers equal in both directions, and each printed value
+compared against the ground truth’s at the precision the page itself
+uses.
+
+The gate was tested by breaking it three ways. Deleting a block fails
+the count. Corrupting a value in the claims file fails the
+cross-instrument comparison. Corrupting a precision in the extraction
+fails the round-trip check, and fails it before anything else reads that
+precision.
+
+# Errata
+
+Four corrections to the published text are collected in
+`yokum_ravishankar_coppock_2019_errata.pdf`, built from `errata.qmd` at
+the root of this repository with every corrected value computed at
+render time from `maintained/output/`. None changes a conclusion and
+none touches an estimate.
+
+1.  The captions of supplementary Figures E.3 and E.4 say the figures
+    cover 90 days before and after deployment. They cover 690 days
+    before and 510 days after. The deposited `time_series_plot.R`
+    applies a 90-day filter to a pooled version of each figure that the
+    supplement does not print; the district-by-district version it does
+    print carries no such filter.
+2.  The Methods section says treatment officers uploaded about 665
+    videos a year. The figure implied by the article’s own Table C.37,
+    and produced by the analysis sample, is 663.
+3.  Appendix A says 180 officers in the pilot were not given cameras.
+    The article’s own Table A.1 gives 79 in 5D and 99 in 7D, which
+    is 178. The treated count in the same sentence, 325, is exactly
+    right.
+4.  Appendix A.1 says the alternate measurement plots are “provided in
+    Section 4.” The supplement’s sections are lettered A through G; the
+    plots are Figure D.2, in Appendix D.
+
+This is separate from the corrections the rewrite makes to the deposited
+code, which are described above and are errors in the archive rather
+than in the article.
 
 # Figures
 
@@ -359,18 +504,21 @@ panel.
 One caption does not describe its figure. Figures E.3 and E.4 are
 captioned “90 days before and after BWC deployment” and say there is no
 significant difference “in either the 90-day period before or after”.
-The published axis runs from roughly 750 days before deployment to 500
-days after, and the underlying panel covers that whole span. The window
-in the caption is not the window in the plot.
+The published axis runs from 750 days before deployment to 500 days
+after, and the underlying panel covers 690 days before and 510 after.
+The window in the caption is not the window in the plot, and the
+correction is the first entry in the errata.
 
 # Verification
 
 Every script runs in a clean session and the whole pipeline runs end to
-end from `run_all.R`. Running it twice returns byte-identical CSV, LaTeX
-and PNG output; the four figure PDFs are the only files that change, and
-they change because a PDF records the time it was written. No estimator
-used anywhere here draws a random number, so there is no seed to set and
-no dependence on which sampler the running version of R provides.
+end from `run_all.R`. Running it twice returns byte-identical output,
+every file included: R’s `pdf()` device stamps the wall clock into each
+figure’s `/CreationDate` and `/ModDate`, and `run_all.R` blanks those
+two fields after the last analysis script, so the determinism check
+covers the figures rather than exempting them. No estimator used
+anywhere here draws a random number, so there is no seed to set and no
+dependence on which sampler the running version of R provides.
 
 `run_all.R` begins by sourcing `download_original.R`, so every run
 re-verifies `original/` against the manifest before any analysis reads

@@ -65,8 +65,16 @@ walk(
 )
 
 # Ground truth ----
-# Rebuilt from the outputs above, so it cannot go stale.
+# Rebuilt from the outputs above, so it cannot go stale. It also runs the coverage
+# gate, which sources in_text_claims.R into its own environment and counts the
+# claims it prints.
 source(here::here("ground_truth", "build_ground_truth.R"))
+
+# In-text claims ----
+# The second instrument, run again here for a human-readable log. Every quantity
+# the article states in a sentence is recomputed beside the sentence that states
+# it.
+source(here::here("maintained", "in_text_claims.R"))
 
 # Deposited archive, again ----
 # The check at the top of this file is a precondition: it says original/ was intact
