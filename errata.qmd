@@ -123,12 +123,20 @@ spell <- function(n) {
 # `form` is a later edition's choice of macro for the entry: "full" where the published
 # and corrected fields are whole sentences that need setting as blocks, "brief" where the
 # entry is a token replacement.
+#
+# `location` is where the published record carries the corrected passage, taken from the
+# location column of ground_truth/published_claims.csv, which is this repo's own extraction
+# of the article and its supplement. Main-text pages are the journal's (the article runs
+# 10329--10332, so the extraction's p. 2 is p. 10330); supplement pages are the supplement's
+# own and are marked "app.". This document does not print the field; it is here so that a
+# later edition and any other consumer read one answer rather than each keeping its own.
 entries <- tribble(
   ~entry, ~class, ~source, ~form, ~title, ~location, ~published, ~corrected, ~note,
 
   1, "label", "pipeline", "full",
   "The captions of supplementary Figures E.3 and E.4 name the wrong window",
-  "",
+  paste0("published app. fig. E.3 caption, p. 37", "\n\n",
+         "published app. fig. E.4 caption, p. 38"),
   paste0(
     "Figure E.3: Uses of Force per 1000 Officers, [[90 days before and after]] BWC deployment, broken out by police district. This figure plots pre- and post-treatment uses of force for both control and treatment group officers in each police district. As the chart indicates, there is no statistically significant difference between the two groups in either [[the 90-day period]] before or after the deployment of BWCs (which occurs on day 0).",
     "\n\n",
@@ -163,7 +171,7 @@ entries <- tribble(
 
   2, "quantity", "pipeline", "full",
   str_glue("Treatment officers uploaded about {f0(videos_treated)} videos a year, not about 665"),
-  "",
+  "published p. 10330",
   "On average, treatment officers uploaded about [[665]] videos annually (compared with 14 videos uploaded among control officers).",
   str_glue("On average, treatment officers uploaded about [[{f0(videos_treated)}]] videos annually (compared with {f0(videos_control)} videos uploaded among control officers)."),
   paste0(
@@ -186,7 +194,7 @@ entries <- tribble(
 
   3, "quantity", "pipeline", "full",
   str_glue("{pilot_control} officers in the pilot were not given cameras, not 180"),
-  "",
+  "published app. A, p. 3",
   "In June 2015, eligible officers in these two districts were randomly assigned to receive a BWC or not: 325 officers were outfitted with BWCs, while [[180]] were not given cameras (the \"control\" group).",
   str_glue("In June 2015, eligible officers in these two districts were randomly assigned to receive a BWC or not: {pilot_bwc} officers were outfitted with BWCs, while [[{pilot_control}]] were not given cameras (the \"control\" group)."),
   str_glue(
@@ -198,7 +206,7 @@ entries <- tribble(
 
   4, "cross_reference", "pipeline", "full",
   str_glue("The alternate measurement plots are in Appendix {alternate_letter}, not in a Section 4"),
-  "",
+  "published app. A.1, p. 5",
   "The coefficient plots for each of the outcomes using this alternate measurement strategy are provided in [[Section 4]].",
   str_glue("The coefficient plots for each of the outcomes using this alternate measurement strategy are provided in [[Appendix {alternate_letter}]]."),
   str_glue(
