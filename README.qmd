@@ -70,6 +70,41 @@ gt_value <- function(id, column) {
 }
 ```
 
+```{r errata-spine, include=FALSE}
+# The corrections are defined once, in errata.qmd's spine, which writes errata_entries.csv
+# at the root of this repository. Every count of them below reads from that file, and
+# every number the errata compute is recomputed here from the same pipeline output, so
+# neither document can carry a stale copy of the other's.
+spine <- read_csv(here::here("errata_entries.csv"), show_col_types = FALSE)
+n_errata <- nrow(spine)
+
+spell <- function(n) {
+  words <- c("one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten")
+  stopifnot(n >= 1, n <= length(words))
+  words[n]
+}
+
+e3_series <- read_csv(here::here("maintained", "output", "figure_e3_use_of_force_time_series.csv"),
+                      show_col_types = FALSE)
+window_before <- -min(e3_series$relative_month)
+window_after <- max(e3_series$relative_month)
+
+c37 <- read_csv(here::here("maintained", "output", "table_c37_compliance.csv"),
+                show_col_types = FALSE) |>
+  filter(outcome == "Videos per year")
+c37_implied <- as.numeric(sprintf("%.1f", c37$constant)) + as.numeric(sprintf("%.1f", c37$estimate))
+
+compliance <- read_csv(here::here("maintained", "output", "text_compliance_means.csv"),
+                       show_col_types = FALSE) |>
+  filter(sample == "Seven patrol districts")
+videos_treated <- compliance$videos_per_year[compliance$assignment == "Officer assigned BWC"]
+
+pilot <- read_csv(here::here("maintained", "output", "table_a1_random_assignment.csv"),
+                  col_types = cols(district = col_character(), .default = col_guess())) |>
+  filter(block %in% c("5D", "7D")) |>
+  arrange(block)
+```
+
 This repository reproduces the published results of Yokum, Ravishankar and Coppock (2019), a randomized trial of police body-worn cameras conducted with the Metropolitan Police Department of the District of Columbia. It contains a maintained rewrite of the analysis in current R, a table that compares every checkable published number against both the deposited code and the rewrite, and a report on what does and does not reproduce.
 
 *Drafted by Claude Opus 5 under the supervision of Alex Coppock.*
@@ -103,7 +138,7 @@ yokum_ravishankar_coppock_2019/
   maintained/output/          everything the rewrite produces
   ground_truth/               published values against archive and rewrite output
   ground_truth/published_claims.csv   the numeric-token extraction from the paper
-  errata.qmd                  four corrections to the published text
+  errata.qmd                  the corrections to the published text
   report/                     the PDF build of this report
 ```
 
@@ -123,7 +158,7 @@ The first run downloads the deposited archive from OSF, which is 176 MB, and ver
 
 **Does the maintained rewrite reproduce the paper?** Yes, on everything the deposit can support. Of `r n_checkable` checkable published values, `r n_rewrite_1` agree to the precision the paper prints and `r n_rewrite_0` do not. A further `r n_rewrite_na` rows record published quantities that no deposit could reproduce, almost all of them because the officer covariates behind the covariate-adjusted results cannot be published without identifying individual officers. Beside the numeric comparisons, `r n_holds_true + n_holds_false` claims the paper states in words are given a computed truth value; `r n_holds_true` hold and `r n_holds_false` do not.
 
-**Does the paper agree with itself?** In `r n_paper_internal` places it does not, and those are collected in `yokum_ravishankar_coppock_2019_errata.pdf` at the root of this repository. Two figure captions name a window an order of magnitude shorter than the one their figures cover, one compliance figure disagrees with the article's own Table C.37, one pilot count disagrees with its own Table A.1, and one cross-reference points at a section the supplement does not have. None of the five changes a conclusion, and none touches an estimate.
+**Does the paper agree with itself?** In `r n_paper_internal` places it does not, and those are collected in `yokum_ravishankar_coppock_2019_errata.pdf` at the root of this repository as `r spell(n_errata)` entries. Two figure captions name a window an order of magnitude shorter than the one their figures cover, and because they carry the same error they are one entry; the rest are a compliance figure that disagrees with the article's own Table C.37, a pilot count that disagrees with its own Table A.1, and a cross-reference that points at a section the supplement does not have. None of them changes a conclusion, and none touches an estimate.
 
 # The paper
 
@@ -290,10 +325,10 @@ gt |>
               !is.na(holds) ~ as.character(holds),
               .default = "-"
             )) |>
-  show_table("The rows where the paper disagrees with itself. Each is an entry in the errata.")
+  show_table("The rows where the paper disagrees with itself. Each is corrected in the errata.")
 ```
 
-The compliance sentence in Methods is the sharpest of them. The article says treatment officers uploaded "about 665" videos a year. The weighted mean in the analysis sample is `r sprintf("%.1f", gt_value("methods_videos_treatment", "value_rewrite"))`, which is also what the article's own Table C.37 implies, since its constant of 13.9 plus its coefficient of 649.1 is 663.0. No sample or weighting scheme available in the deposit returns 665. The gap is two videos out of 663 and changes nothing, but the sentence and the table it summarizes do not agree with each other.
+The compliance sentence in Methods is the sharpest of them. The article says treatment officers uploaded "about 665" videos a year. The weighted mean in the analysis sample is `r sprintf("%.1f", gt_value("methods_videos_treatment", "value_rewrite"))`, which is also what the article's own Table C.37 implies, since its constant of `r sprintf("%.1f", c37$constant)` plus its coefficient of `r sprintf("%.1f", c37$estimate)` is `r sprintf("%.1f", c37_implied)`. No sample or weighting scheme available in the deposit returns 665. The gap is two videos out of `r sprintf("%.0f", videos_treated)` and changes nothing, but the sentence and the table it summarizes do not agree with each other.
 
 # The extraction and the two instruments
 
@@ -344,11 +379,11 @@ The gate was tested by breaking it three ways. Deleting a block fails the count.
 
 # Errata
 
-Four corrections to the published text are collected in `yokum_ravishankar_coppock_2019_errata.pdf`, built from `errata.qmd` at the root of this repository with every corrected value computed at render time from `maintained/output/`. None changes a conclusion and none touches an estimate.
+The `r spell(n_errata)` corrections to the published text are collected in `yokum_ravishankar_coppock_2019_errata.pdf`, built from `errata.qmd` at the root of this repository with every corrected value computed at render time from `maintained/output/`. That file also writes `errata_entries.csv`, the spine every entry is defined in and the source of the count above. None changes a conclusion and none touches an estimate.
 
-1. The captions of supplementary Figures E.3 and E.4 say the figures cover 90 days before and after deployment. They cover 690 days before and 510 days after. The deposited `time_series_plot.R` applies a 90-day filter to a pooled version of each figure that the supplement does not print; the district-by-district version it does print carries no such filter.
-2. The Methods section says treatment officers uploaded about 665 videos a year. The figure implied by the article's own Table C.37, and produced by the analysis sample, is 663.
-3. Appendix A says 180 officers in the pilot were not given cameras. The article's own Table A.1 gives 79 in 5D and 99 in 7D, which is 178. The treated count in the same sentence, 325, is exactly right.
+1. The captions of supplementary Figures E.3 and E.4 say the figures cover 90 days before and after deployment. They cover `r window_before` days before and `r window_after` days after. The deposited `time_series_plot.R` applies a 90-day filter to a pooled version of each figure that the supplement does not print; the district-by-district version it does print carries no such filter.
+2. The Methods section says treatment officers uploaded about 665 videos a year. The figure implied by the article's own Table C.37, and produced by the analysis sample, is `r sprintf("%.0f", videos_treated)`.
+3. Appendix A says 180 officers in the pilot were not given cameras. The article's own Table A.1 gives `r pilot$control[1]` in `r pilot$block[1]` and `r pilot$control[2]` in `r pilot$block[2]`, which is `r sum(pilot$control)`. The treated count in the same sentence, `r sum(pilot$bwc)`, is exactly right.
 4. Appendix A.1 says the alternate measurement plots are "provided in Section 4." The supplement's sections are lettered A through G; the plots are Figure D.2, in Appendix D.
 
 This is separate from the corrections the rewrite makes to the deposited code, which are described above and are errors in the archive rather than in the article.
@@ -390,7 +425,7 @@ agreement <- figure_c1 |>
 
 None of the published figures prints a number, so each figure script writes a CSV of the values it plots and the ground truth compares those. Figure C.1 plots the same unadjusted estimates the appendix tables print, and across `r agreement$n_pairs` outcomes, matched on the outcome column name rather than the printed label, the largest absolute difference between the figure's values and the tables' is `r format(agreement$max_difference, digits = 2)`. Figures E.3 and E.4 plot 432 district by period rates each, reproduced from the deposited officer-day panel.
 
-One caption does not describe its figure. Figures E.3 and E.4 are captioned "90 days before and after BWC deployment" and say there is no significant difference "in either the 90-day period before or after". The published axis runs from 750 days before deployment to 500 days after, and the underlying panel covers 690 days before and 510 after. The window in the caption is not the window in the plot, and the correction is the first entry in the errata.
+One caption does not describe its figure. Figures E.3 and E.4 are captioned "90 days before and after BWC deployment" and say there is no significant difference "in either the 90-day period before or after". The published axis runs from 750 days before deployment to 500 days after, and the underlying panel covers `r window_before` days before and `r window_after` after. The window in the caption is not the window in the plot, and the correction is the first entry in the errata.
 
 # Verification
 

@@ -52,7 +52,7 @@ checked against the registration agency’s record.
       maintained/output/          everything the rewrite produces
       ground_truth/               published values against archive and rewrite output
       ground_truth/published_claims.csv   the numeric-token extraction from the paper
-      errata.qmd                  four corrections to the published text
+      errata.qmd                  the corrections to the published text
       report/                     the PDF build of this report
 
 To reproduce: clone the repository, open
@@ -96,11 +96,12 @@ computed truth value; 14 hold and 3 do not.
 
 **Does the paper agree with itself?** In 5 places it does not, and those
 are collected in `yokum_ravishankar_coppock_2019_errata.pdf` at the root
-of this repository. Two figure captions name a window an order of
-magnitude shorter than the one their figures cover, one compliance
-figure disagrees with the article’s own Table C.37, one pilot count
-disagrees with its own Table A.1, and one cross-reference points at a
-section the supplement does not have. None of the five changes a
+of this repository as four entries. Two figure captions name a window an
+order of magnitude shorter than the one their figures cover, and because
+they carry the same error they are one entry; the rest are a compliance
+figure that disagrees with the article’s own Table C.37, a pilot count
+that disagrees with its own Table A.1, and a cross-reference that points
+at a section the supplement does not have. None of them changes a
 conclusion, and none touches an estimate.
 
 # The paper
@@ -335,7 +336,7 @@ covers.
 | Text, Appendix A | Pilot officers not given cameras | 180 | 178.0 |
 | Text, Appendix A.1 | The alternate measurement plots are said to be in Section 4 | \- | FALSE |
 
-The rows where the paper disagrees with itself. Each is an entry in the
+The rows where the paper disagrees with itself. Each is corrected in the
 errata.
 
 The compliance sentence in Methods is the sharpest of them. The article
@@ -447,11 +448,13 @@ precision.
 
 # Errata
 
-Four corrections to the published text are collected in
+The four corrections to the published text are collected in
 `yokum_ravishankar_coppock_2019_errata.pdf`, built from `errata.qmd` at
 the root of this repository with every corrected value computed at
-render time from `maintained/output/`. None changes a conclusion and
-none touches an estimate.
+render time from `maintained/output/`. That file also writes
+`errata_entries.csv`, the spine every entry is defined in and the source
+of the count above. None changes a conclusion and none touches an
+estimate.
 
 1.  The captions of supplementary Figures E.3 and E.4 say the figures
     cover 90 days before and after deployment. They cover 690 days
