@@ -130,8 +130,13 @@ spell <- function(n) {
 # 10329--10332, so the extraction's p. 2 is p. 10330); supplement pages are the supplement's
 # own and are marked "app.". This document does not print the field; it is here so that a
 # later edition and any other consumer read one answer rather than each keeping its own.
+# `claim_ids` names the ground truth rows the entry corrects, semicolon separated, and it is
+# what makes "has this finding been published?" a query over the corpus rather than a reading
+# of every note. It is empty where the entry has no ground truth row: a reference list is not
+# an extraction claim. Every id listed here is checked against the ground truth by
+# ground_truth/build_ground_truth.R, which refuses to finish on a dangling one.
 entries <- tribble(
-  ~entry, ~class, ~source, ~form, ~title, ~location, ~published, ~corrected, ~note,
+  ~entry, ~class, ~source, ~form, ~title, ~location, ~published, ~corrected, ~note, ~claim_ids,
 
   1, "label", "pipeline", "full",
   "The captions of supplementary Figures E.3 and E.4 name the wrong window",
@@ -168,6 +173,7 @@ entries <- tribble(
       "deposit contains no test behind it. The figures are scatterplots with smoothed",
       "conditional means and shaded bands, and the reader is being pointed at overlapping",
       "bands rather than at an estimate.")),
+  "figure_e3_window;figure_e4_window",
 
   2, "quantity", "pipeline", "full",
   str_glue("Treatment officers uploaded about {f0(videos_treated)} videos a year, not about 665"),
@@ -191,6 +197,7 @@ entries <- tribble(
       "The manipulation check the sentence supports is unaffected: officers assigned a camera ",
       "uploaded roughly {f0(videos_treated / videos_control)} times as many videos as control ",
       "officers, and the difference is significant at any conventional level.")),
+  "methods_videos_treatment",
 
   3, "quantity", "pipeline", "full",
   str_glue("{pilot_control} officers in the pilot were not given cameras, not 180"),
@@ -203,6 +210,7 @@ entries <- tribble(
     "counts sum to {pilot_control}. The deposited officer file agrees with Table A.1 on both, ",
     "carrying {pilot_control} control and {pilot_bwc} camera officers across the two ",
     "districts. Nothing else in the article depends on the pilot's control count."),
+  "appendix_pilot_control",
 
   4, "cross_reference", "pipeline", "full",
   str_glue("The alternate measurement plots are in Appendix {alternate_letter}, not in a Section 4"),
@@ -214,9 +222,10 @@ entries <- tribble(
     "alternate measurement plots are Figure {alternate_figure}, the sole content of Appendix ",
     "{alternate_letter}, \"Application of Alternate Measurement Strategy\", which is the ",
     "{ordinal(alternate_position)} lettered section and is presumably where the numeral came ",
-    "from.")
+    "from."),
+  "appendix_alternate_section_reference"
 ) |>
-  mutate(across(c(title, published, corrected, note), as.character))
+  mutate(across(c(title, published, corrected, note, claim_ids), as.character))
 
 stopifnot(nrow(entries) == max(entries$entry), !anyDuplicated(entries$entry))
 
