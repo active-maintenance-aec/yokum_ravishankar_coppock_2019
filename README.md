@@ -96,7 +96,7 @@ computed truth value; 14 hold and 3 do not.
 
 **Does the paper agree with itself?** In 5 places it does not, and those
 are collected in `yokum_ravishankar_coppock_2019_errata.pdf` at the root
-of this repository as four entries. Two figure captions name a window an
+of this repository as five entries. Two figure captions name a window an
 order of magnitude shorter than the one their figures cover, and because
 they carry the same error they are one entry; the rest are a compliance
 figure that disagrees with the article’s own Table C.37, a pilot count
@@ -448,7 +448,7 @@ precision.
 
 # Errata
 
-The four corrections to the published text are collected in
+The five corrections to the published text are collected in
 `yokum_ravishankar_coppock_2019_errata.pdf`, built from `errata.qmd` at
 the root of this repository with every corrected value computed at
 render time from `maintained/output/`. That file also writes

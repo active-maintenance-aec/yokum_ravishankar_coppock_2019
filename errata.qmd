@@ -201,15 +201,23 @@ entries <- tribble(
 
   3, "quantity", "pipeline", "full",
   str_glue("{pilot_control} officers in the pilot were not given cameras, not 180"),
-  "published app. A, p. 3",
+  "published app. A, p. 3, and in the pre-analysis plan the supplement reproduces, app. p. 47",
   "In June 2015, eligible officers in these two districts were randomly assigned to receive a BWC or not: 325 officers were outfitted with BWCs, while [[180]] were not given cameras (the \"control\" group).",
   str_glue("In June 2015, eligible officers in these two districts were randomly assigned to receive a BWC or not: {pilot_bwc} officers were outfitted with BWCs, while [[{pilot_control}]] were not given cameras (the \"control\" group)."),
-  str_glue(
-    "The two pilot districts are {pilot_line} in the supplement's own Table A.1. Their camera ",
-    "counts sum to {pilot_bwc}, which is exactly the figure the sentence gives; their control ",
-    "counts sum to {pilot_control}. The deposited officer file agrees with Table A.1 on both, ",
-    "carrying {pilot_control} control and {pilot_bwc} camera officers across the two ",
-    "districts. Nothing else in the article depends on the pilot's control count."),
+  paste0(
+    str_glue(
+      "The two pilot districts are {pilot_line} in the supplement's own Table A.1. Their camera ",
+      "counts sum to {pilot_bwc}, which is exactly the figure the sentence gives; their control ",
+      "counts sum to {pilot_control}. The deposited officer file agrees with Table A.1 on both, ",
+      "carrying {pilot_control} control and {pilot_bwc} camera officers across the two ",
+      "districts. Nothing else in the article depends on the pilot's control count."),
+    "\n\n",
+    str_glue(
+      "The sentence appears twice in the supplement, word for word. Appendix A carries it on ",
+      "p. 3, and the pre-analysis plan the supplement reproduces carries it again on p. 47, ",
+      "with the same figure of 180. The second occurrence was found by the remastered ",
+      "edition's builder, which searches the supplement's own text layer for every entry it ",
+      "is about to flag rather than trusting a page number, and it is corrected here as well.")),
   "appendix_pilot_control",
 
   4, "cross_reference", "pipeline", "full",
@@ -223,7 +231,21 @@ entries <- tribble(
     "{alternate_letter}, \"Application of Alternate Measurement Strategy\", which is the ",
     "{ordinal(alternate_position)} lettered section and is presumably where the numeral came ",
     "from."),
-  "appendix_alternate_section_reference"
+  "appendix_alternate_section_reference",
+
+  # Found while transcribing the article for the remastered edition: published
+  # p. 10330 sets the run-in heading of the data availability statement with the
+  # spelling below. Alex, 2026-08-17, shown it: "yes this is an erratum."
+  # Decision 6 governs, so it is appended after the existing four rather than
+  # sorted into the article's order, and the heading alone is the entry because
+  # nobody would quote a sentence for it.
+  5, "spelling", "reading", "brief",
+  "The run-in heading of the data availability statement is misspelled",
+  "published p. 10330",
+  "[[Data Availablity.]]",
+  "[[Data Availability.]]",
+  "",
+  ""
 ) |>
   mutate(across(c(title, published, corrected, note, claim_ids), as.character))
 
@@ -235,7 +257,7 @@ bold <- function(x) str_replace_all(x, "\\[\\[(.*?)\\]\\]", "**\\1**")
 plain <- function(x) str_remove_all(x, "\\[\\[|\\]\\]")
 ```
 
-This note lists `r spell(nrow(entries))` corrections to "A randomized control trial evaluating the effects of police body-worn cameras," published in the *Proceedings of the National Academy of Sciences* 116(21):10329--10332, doi [10.1073/pnas.1814773116](https://doi.org/10.1073/pnas.1814773116). The first covers two figure captions that misstate the window the figures cover; the second a compliance figure that disagrees with the article's own Table C.37; the third a count that disagrees with the article's own Table A.1; the fourth a cross-reference to a section the supplement does not have. **None changes any conclusion of the paper.** Every treatment effect estimate, standard error, constant and sample size in Tables C.5 through C.37 reproduces exactly, and no estimate anywhere in the article moves.
+This note lists `r spell(nrow(entries))` corrections to "A randomized control trial evaluating the effects of police body-worn cameras," published in the *Proceedings of the National Academy of Sciences* 116(21):10329--10332, doi [10.1073/pnas.1814773116](https://doi.org/10.1073/pnas.1814773116). The first covers two figure captions that misstate the window the figures cover; the second a compliance figure that disagrees with the article's own Table C.37; the third a count that disagrees with the article's own Table A.1; the fourth a cross-reference to a section the supplement does not have; the fifth a misspelling in a run-in heading. **None changes any conclusion of the paper.** Every treatment effect estimate, standard error, constant and sample size in Tables C.5 through C.37 reproduces exactly, and no estimate anywhere in the article moves.
 
 The numbers in the corrected sentences and every number in the notes beneath them are computed from the deposited replication archive ([10.17605/OSF.IO/P6VUH](https://doi.org/10.17605/OSF.IO/P6VUH)) at the time this document is rendered. The code and output supporting the corrections are at [github.com/active-maintenance-aec/yokum_ravishankar_coppock_2019](https://github.com/active-maintenance-aec/yokum_ravishankar_coppock_2019).
 
@@ -254,7 +276,7 @@ cat("\n\n## ", e$entry, ". ", e$title, "\n\n",
     e$note, "\n", sep = "")
 ```
 
-```{r entries-2-to-4, results="asis"}
+```{r entries-2-onward, results="asis"}
 # A heading is only a heading when a blank line precedes it, so each entry opens with one.
 walk(which(entries$entry >= 2), function(i) {
   e <- entries[i, ]
