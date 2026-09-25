@@ -63,7 +63,13 @@ fit_dim_ipw_hc2 <- function(outcomes, labels, data, se_type = "HC2") {
 fit_ols_pretreatment_hc2 <- function(outcomes, pre_outcomes, labels, data, se_type = "HC2") {
   wts <- data$weights
   pmap(list(outcomes, pre_outcomes, labels), function(y_name, pre_name, label) {
-    fit <- lm_robust(reformulate(c("Z", pre_name), y_name),
+    # Six of the outcomes never occurred in the pretreatment window, so their
+    # pretreatment rate is exactly zero for all 1,922 officers. Such a covariate is
+    # collinear with the intercept and comes back as NA: the adjustment is vacuous
+    # for those six rather than wrong, and the figure plots what it always did. It
+    # is pruned where it has no variation, which moves no estimate.
+    adjust <- n_distinct(data[[pre_name]], na.rm = TRUE) > 1
+    fit <- lm_robust(reformulate(if (adjust) c("Z", pre_name) else "Z", y_name),
                      data = data, weights = wts, se_type = se_type)
     tibble(
       outcome = label,

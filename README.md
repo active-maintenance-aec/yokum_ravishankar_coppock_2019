@@ -530,18 +530,18 @@ not list has appeared. The deposit’s own scripts are never executed
 inside `original/`, which is what a checksum gate placed after the fact
 would fail to catch.
 
-| Package    | Version |
-|:-----------|:--------|
-| tidyverse  | 2.0.0   |
-| estimatr   | 1.0.6   |
-| broom      | 1.0.13  |
-| ggplot2    | 4.0.3   |
-| readr      | 2.2.0   |
-| dplyr      | 1.2.1   |
-| purrr      | 1.2.2   |
-| knitr      | 1.51    |
-| kableExtra | 1.4.0   |
-| here       | 1.0.2   |
-| openssl    | 2.4.2   |
+| Package    | Version    |
+|:-----------|:-----------|
+| tidyverse  | 2.0.0      |
+| estimatr   | 2.0.0.9000 |
+| broom      | 1.0.13     |
+| ggplot2    | 4.0.3      |
+| readr      | 2.2.0      |
+| dplyr      | 1.2.1      |
+| purrr      | 1.2.2      |
+| knitr      | 1.51       |
+| kableExtra | 1.4.0      |
+| here       | 1.0.2      |
+| openssl    | 2.4.2      |
 
 R environment. Rendered under R version 4.6.0 (2026-04-24).
