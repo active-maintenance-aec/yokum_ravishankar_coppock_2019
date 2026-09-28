@@ -1,12 +1,12 @@
 stem,outcome,outcome_variable,estimate,std_error,constant,constant_se,n,r_squared
 table_c11_use_of_force_nonblack,Use of Force,use_of_force_nonblack_1000_rate_post,-0.8480599439863068,12.423580114469106,39.58181350717355,8.466119150064904,2224,2.1249076849194637e-6
-table_c11_use_of_force_nonblack,Use of Force (Serious),use_of_force_serious_nonblack_1000_rate_post,1.549350142527459,1.5493129391925524,1.7432348346402368e-14,2.891309238727684e-15,2224,4.4984255500812864e-4
+table_c11_use_of_force_nonblack,Use of Force (Serious),use_of_force_serious_nonblack_1000_rate_post,1.549350142527459,1.5493129391925524,1.7432348346402368e-14,0,2224,4.4984255500812864e-4
 table_c11_use_of_force_nonblack,Use of Force (Other),use_of_force_less_serious_nonblack_1000_rate_post,3.3990826252987563,12.464471322387094,39.58181350717353,8.4661191500649,2224,3.380879143433102e-5
 table_c13_use_of_force_white,Use of Force,use_of_force_white_1000_rate_post,6.202463805869807,8.718180427725025,18.587138474570025,5.341945217807489,2224,2.2771891133310795e-4
 table_c13_use_of_force_white,Use of Force (Serious),use_of_force_serious_white_1000_rate_post,0,0,0,0,2224,NA
 table_c13_use_of_force_white,Use of Force (Other),use_of_force_less_serious_white_1000_rate_post,7.34580954357836,8.790551150797713,18.58713847457002,5.341945217807492,2224,3.123136244985725e-4
 table_c15_use_of_force_hispanic,Use of Force,use_of_force_hispanic_1000_rate_post,-7.050523749856077,7.136657931088817,19.445324890076012,5.644145113107577,2224,4.573148771094271e-4
-table_c15_use_of_force_hispanic,Use of Force (Serious),use_of_force_serious_hispanic_1000_rate_post,1.549350142527459,1.5493129391925524,1.7432348346402368e-14,2.891309238727684e-15,2224,4.4984255500812864e-4
+table_c15_use_of_force_hispanic,Use of Force (Serious),use_of_force_serious_hispanic_1000_rate_post,1.549350142527459,1.5493129391925524,1.7432348346402368e-14,0,2224,4.4984255500812864e-4
 table_c15_use_of_force_hispanic,Use of Force (Other),use_of_force_less_serious_hispanic_1000_rate_post,-3.946726918279703,7.776637214666,19.445324890076055,5.644145113107569,2224,1.1994545786997435e-4
 table_c17_use_of_force_other_race,Use of Force,use_of_force_other_1000_rate_post,1.4134599973232693e-14,2.191134990129849,1.5493501425274836,1.5494198789940306,2224,0
 table_c17_use_of_force_other_race,Use of Force (Serious),use_of_force_serious_other_1000_rate_post,0,0,0,0,2224,NA

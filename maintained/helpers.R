@@ -33,16 +33,23 @@ fit_dim_ipw_hc2 <- function(outcomes, labels, data, se_type = "HC2") {
   wts <- data$weights
   map2(outcomes, labels, function(y_name, label) {
     fit <- lm_robust(reformulate("Z", y_name), data = data, weights = wts, se_type = se_type)
+    # The constant is the control-arm mean, so its variance sums over control residuals
+    # alone, and the difference sums over both arms. An outcome constant in control, or
+    # in both arms, therefore has a variance of exactly 0, which estimatr >= 2.0.1
+    # returns as NA; the published tables print (0.0).
+    arm_constant <- map_lgl(c(0, 1), \(z) n_distinct(na.omit(data[[y_name]][data$Z == z])) == 1)
+    constant_se <- if (arm_constant[1]) 0 else fit$std.error[["(Intercept)"]]
+    exact_fit <- all(arm_constant)
     tibble(
       outcome = label,
       outcome_variable = y_name,
       estimate = coef(fit)[["Z"]],
-      std_error = fit$std.error[["Z"]],
+      std_error = if (exact_fit) 0 else fit$std.error[["Z"]],
       p_value = fit$p.value[["Z"]],
-      conf_low = fit$conf.low[["Z"]],
-      conf_high = fit$conf.high[["Z"]],
+      conf_low = if (exact_fit) coef(fit)[["Z"]] else fit$conf.low[["Z"]],
+      conf_high = if (exact_fit) coef(fit)[["Z"]] else fit$conf.high[["Z"]],
       constant = coef(fit)[["(Intercept)"]],
-      constant_se = fit$std.error[["(Intercept)"]],
+      constant_se = constant_se,
       n = fit$nobs,
       r_squared = fit$r.squared
     )
@@ -71,14 +78,17 @@ fit_ols_pretreatment_hc2 <- function(outcomes, pre_outcomes, labels, data, se_ty
     adjust <- n_distinct(data[[pre_name]], na.rm = TRUE) > 1
     fit <- lm_robust(reformulate(if (adjust) c("Z", pre_name) else "Z", y_name),
                      data = data, weights = wts, se_type = se_type)
+    # An outcome that never occurs is fitted exactly, so its variance is exactly 0,
+    # which estimatr >= 2.0.1 returns as NA; set it as fit_dim_ipw_hc2() does.
+    exact_fit <- n_distinct(data[[y_name]], na.rm = TRUE) == 1
     tibble(
       outcome = label,
       outcome_variable = y_name,
       estimate = coef(fit)[["Z"]],
-      std_error = fit$std.error[["Z"]],
+      std_error = if (exact_fit) 0 else fit$std.error[["Z"]],
       p_value = fit$p.value[["Z"]],
-      conf_low = fit$conf.low[["Z"]],
-      conf_high = fit$conf.high[["Z"]],
+      conf_low = if (exact_fit) coef(fit)[["Z"]] else fit$conf.low[["Z"]],
+      conf_high = if (exact_fit) coef(fit)[["Z"]] else fit$conf.high[["Z"]],
       n = fit$nobs,
       r_squared = fit$r.squared
     )
