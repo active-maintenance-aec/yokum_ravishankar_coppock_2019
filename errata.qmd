@@ -135,8 +135,15 @@ spell <- function(n) {
 # of every note. It is empty where the entry has no ground truth row: a reference list is not
 # an extraction claim. Every id listed here is checked against the ground truth by
 # ground_truth/build_ground_truth.R, which refuses to finish on a dangling one.
+# corrected_values runs parallel to claim_ids, one value per id in the same order, carrying
+# the corrected quantity as a number rather than as a sentence. The sentence already holds
+# it, but only inside prose a reader has to parse. Each value comes from the same expression
+# that glues the sentence, so the two cannot be written apart, and the gate below re-checks
+# that each one is still inside the span it belongs to. An entry that corrects nothing (a
+# note, or any class other than quantity) carries NA, and so does a quantity entry whose
+# claim is not a number printed in the corrected sentence.
 entries <- tribble(
-  ~entry, ~class, ~source, ~form, ~title, ~location, ~published, ~corrected, ~note, ~claim_ids,
+  ~entry, ~class, ~source, ~form, ~title, ~location, ~published, ~corrected, ~note, ~claim_ids, ~corrected_values,
 
   1, "label", "pipeline", "full",
   "The captions of supplementary Figures E.3 and E.4 name the wrong window",
@@ -173,7 +180,7 @@ entries <- tribble(
       "deposit contains no test behind it. The figures are scatterplots with smoothed",
       "conditional means and shaded bands, and the reader is being pointed at overlapping",
       "bands rather than at an estimate.")),
-  "figure_e3_window;figure_e4_window",
+  "figure_e3_window;figure_e4_window", NA_character_,
 
   2, "quantity", "pipeline", "full",
   str_glue("Treatment officers uploaded about {f0(videos_treated)} videos a year, not about 665"),
@@ -197,7 +204,7 @@ entries <- tribble(
       "The manipulation check the sentence supports is unaffected: officers assigned a camera ",
       "uploaded roughly {f0(videos_treated / videos_control)} times as many videos as control ",
       "officers, and the difference is significant at any conventional level.")),
-  "methods_videos_treatment",
+  "methods_videos_treatment", f0(videos_treated),
 
   3, "quantity", "pipeline", "full",
   str_glue("{pilot_control} officers in the pilot were not given cameras, not 180"),
@@ -218,7 +225,7 @@ entries <- tribble(
       "with the same figure of 180. The second occurrence was found by the remastered ",
       "edition's builder, which searches the supplement's own text layer for every entry it ",
       "is about to flag rather than trusting a page number, and it is corrected here as well.")),
-  "appendix_pilot_control",
+  "appendix_pilot_control", as.character(pilot_control),
 
   4, "cross_reference", "pipeline", "full",
   str_glue("The alternate measurement plots are in Appendix {alternate_letter}, not in a Section 4"),
@@ -231,7 +238,7 @@ entries <- tribble(
     "{alternate_letter}, \"Application of Alternate Measurement Strategy\", which is the ",
     "{ordinal(alternate_position)} lettered section and is presumably where the numeral came ",
     "from."),
-  "appendix_alternate_section_reference",
+  "appendix_alternate_section_reference", NA_character_,
 
   # Found while transcribing the article for the remastered edition: published
   # p. 10330 sets the run-in heading of the data availability statement with the
@@ -245,11 +252,69 @@ entries <- tribble(
   "[[Data Availablity.]]",
   "[[Data Availability.]]",
   "",
-  ""
+  "",
+  NA_character_
 ) |>
-  mutate(across(c(title, published, corrected, note, claim_ids), as.character))
+  mutate(across(c(title, published, corrected, note, claim_ids, corrected_values), as.character))
 
 stopifnot(nrow(entries) == max(entries$entry), !anyDuplicated(entries$entry))
+
+# Gate: corrected_values agrees with the sentence it was glued into ----
+# The column and the sentence are written from one expression, so they begin in agreement
+# and this gate exists for the edit that separates them: a value moved from one marked span
+# to another, a span reworded to carry a second number, a claim id appended without its
+# value. Each value has to be inside the span it belongs to, matched by position where the
+# counts line up, and inside SOME span where they do not. The spelled form counts as the
+# numeral, since a minimal edit sets "six" and not "6".
+marked_spans <- function(x) str_match_all(x, "\\[\\[(.*?)\\]\\]")[[1]][, 2]
+
+spelled_numbers <- c("one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+                     "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
+                     "seventeen", "eighteen", "nineteen", "twenty")
+
+inside_span <- function(value, span) {
+  numeral <- str_detect(span, fixed(value))
+  spelled <- !is.na(suppressWarnings(as.numeric(value))) &&
+    as.numeric(value) %in% seq_along(spelled_numbers) &&
+    str_detect(span, fixed(spelled_numbers[as.numeric(value)]))
+  numeral || spelled
+}
+
+quantified <- entries |>
+  filter(!is.na(corrected_values)) |>
+  mutate(ids = str_split(claim_ids, ";"), values = str_split(corrected_values, ";"),
+         spans = map(corrected, marked_spans))
+
+stopifnot(all(lengths(quantified$ids) == lengths(quantified$values)))
+
+value_placed <- pmap_lgl(quantified, function(...) {
+  e <- list(...)
+  if (length(e$values) == length(e$spans)) {
+    all(map2_lgl(e$values, e$spans, inside_span))
+  } else {
+    all(map_lgl(e$values, \(v) any(map_lgl(e$spans, \(s) inside_span(v, s)))))
+  }
+})
+
+if (!all(value_placed)) {
+  print(quantified |> filter(!value_placed) |> select(entry, title, corrected_values, corrected))
+  stop("An entry's corrected_values are not in the spans of its corrected sentence.")
+}
+
+# An entry that changes a quantity has to say which one, and an entry that changes none may
+# not carry a value. The class is the declaration and this is where it binds. A note
+# corrects nothing, so it carries NA even where its class is quantity, and an entry with no
+# claim id has no claim to carry a value for. `unvalued` lists the quantity entries whose
+# claim is not a number printed in the corrected sentence; they carry NA by decision.
+unvalued <- integer(0)
+stopifnot(
+  all(!is.na(entries$corrected_values[entries$class == "quantity" & entries$form != "note" &
+                                        !is.na(entries$claim_ids) & entries$claim_ids != "" &
+                                        !entries$entry %in% unvalued])),
+  all(is.na(entries$corrected_values[entries$class != "quantity"])),
+  all(is.na(entries$corrected_values[entries$form == "note"])),
+  all(is.na(entries$corrected_values) | (!is.na(entries$claim_ids) & entries$claim_ids != ""))
+)
 
 # The spine's markup, resolved for this document: the corrected span is bolded, and the
 # published span is set plain, as the published record set it.
