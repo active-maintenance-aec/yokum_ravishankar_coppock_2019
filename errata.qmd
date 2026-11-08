@@ -19,7 +19,7 @@ here::i_am("errata.qmd")
 # is rendered. Nothing below is typed.
 out <- function(f) read_csv(here("maintained", "output", f), show_col_types = FALSE)
 
-# Entry 1: the window the two time series figures actually cover.
+# Entry 3: the window the two time series figures actually cover.
 e3 <- out("figure_e3_use_of_force_time_series.csv")
 e4 <- out("figure_e4_complaints_time_series.csv")
 stopifnot(identical(range(e3$relative_month), range(e4$relative_month)))
@@ -29,7 +29,7 @@ n_periods <- n_distinct(e3$relative_month)
 period_length <- unique(diff(sort(unique(e3$relative_month))))
 stopifnot(length(period_length) == 1)
 
-# Entry 2: the compliance means, and what Table C.37 prints for the same quantity.
+# Entry 1: the compliance means, and what Table C.37 prints for the same quantity.
 compliance <- out("text_compliance_means.csv") |>
   filter(sample == "Seven patrol districts")
 videos_treated <- compliance$videos_per_year[compliance$assignment == "Officer assigned BWC"]
@@ -55,7 +55,7 @@ f1 <- function(x) sprintf("%.1f", x)
 f0 <- function(x) sprintf("%.0f", x)
 table_implied <- as.numeric(f1(c37_control)) + as.numeric(f1(c37_effect))
 
-# Entry 3: the pilot districts' assignment counts.
+# Entry 2: the pilot districts' assignment counts.
 a1 <- read_csv(here("maintained", "output", "table_a1_random_assignment.csv"),
                col_types = cols(district = col_character(), .default = col_guess()))
 pilot <- a1 |> filter(block %in% c("5D", "7D")) |> arrange(block)
@@ -113,9 +113,11 @@ spell <- function(n) {
 # document bolds the corrected span and prints the published one plain, an edition would
 # set \was{}. Nothing else in a field is markup, so the same string can be set by either.
 #
-# Numbering is the published note's and is APPEND-ONLY. An entry that has been circulated
-# can already have been cited by number, so a later finding is added at the end and the
-# existing entries are never reordered, renumbered, merged or split.
+# Numbering follows PROCEDURES.md Stage 4b: entries are ordered by severity block (quantity;
+# description, interpretation, definition; label, float, cross_reference; wording, spelling,
+# typography; bibliographic), discovery order inside a block, and a finding that lands in an
+# earlier block renumbers the entries after it. Renumbered 2026-11-07; the old-to-new map is
+# in that day's commit message.
 #
 # Every published or corrected number the pipeline computes is built with str_glue() here
 # rather than typed, so the spine carries the computation and not a snapshot of it.
@@ -145,10 +147,55 @@ spell <- function(n) {
 entries <- tribble(
   ~entry, ~class, ~source, ~form, ~title, ~location, ~published, ~corrected, ~note, ~claim_ids, ~corrected_values,
 
-  1, "label", "pipeline", "full",
+  1, "quantity", "pipeline", "full",
+  str_glue("Treatment officers uploaded about {f0(videos_treated)} videos a year, not about 665"),
+  "p. 10330",
+  "On average, treatment officers uploaded about [[665]] videos annually (compared with 14 videos uploaded among control officers).",
+  str_glue("On average, treatment officers uploaded about [[{f0(videos_treated)}]] videos annually (compared with {f0(videos_control)} videos uploaded among control officers)."),
+  paste0(
+    str_glue(
+      "The article's own supplementary Table C.37 gives the same quantity. Its control mean ",
+      "is {f1(c37_control)} videos a year and its estimated effect of being assigned a camera ",
+      "is {f1(c37_effect)}, which sum to {f1(table_implied)}. Computed directly on the ",
+      "analysis sample, the inverse-probability-weighted mean among officers assigned a ",
+      "camera is {f1(videos_treated)}. No sample or weighting scheme in the deposit returns ",
+      "665: dropping the weights gives {f1(videos_treated_unweighted)} on the seven patrol ",
+      "districts, and taking all {n_trial} officers in the trial gives ",
+      "{f1(videos_trial_weighted)} weighted and {f1(videos_trial_unweighted)} unweighted. The ",
+      "control figure of {f0(videos_control)} is unchanged and is restated above only because ",
+      "it sits in the same sentence."),
+    "\n\n",
+    str_glue(
+      "The manipulation check the sentence supports is unaffected: officers assigned a camera ",
+      "uploaded roughly {f0(videos_treated / videos_control)} times as many videos as control ",
+      "officers, and the difference is significant at any conventional level.")),
+  "methods_videos_treatment", f0(videos_treated),
+
+  2, "quantity", "pipeline", "full",
+  str_glue("{pilot_control} officers in the pilot were not given cameras, not 180"),
+  "app. A, p. 3, and in the pre-analysis plan the supplement reproduces, app. p. 47",
+  "In June 2015, eligible officers in these two districts were randomly assigned to receive a BWC or not: 325 officers were outfitted with BWCs, while [[180]] were not given cameras (the \"control\" group).",
+  str_glue("In June 2015, eligible officers in these two districts were randomly assigned to receive a BWC or not: {pilot_bwc} officers were outfitted with BWCs, while [[{pilot_control}]] were not given cameras (the \"control\" group)."),
+  paste0(
+    str_glue(
+      "The two pilot districts are {pilot_line} in the supplement's own Table A.1. Their camera ",
+      "counts sum to {pilot_bwc}, which is exactly the figure the sentence gives; their control ",
+      "counts sum to {pilot_control}. The deposited officer file agrees with Table A.1 on both, ",
+      "carrying {pilot_control} control and {pilot_bwc} camera officers across the two ",
+      "districts. Nothing else in the article depends on the pilot's control count."),
+    "\n\n",
+    str_glue(
+      "The sentence appears twice in the supplement, word for word. Appendix A carries it on ",
+      "p. 3, and the pre-analysis plan the supplement reproduces carries it again on p. 47, ",
+      "with the same figure of 180. The second occurrence was found by the remastered ",
+      "edition's builder, which searches the supplement's own text layer for every entry it ",
+      "is about to flag rather than trusting a page number, and it is corrected here as well.")),
+  "appendix_pilot_control", as.character(pilot_control),
+
+  3, "label", "pipeline", "full",
   "The captions of supplementary Figures E.3 and E.4 name the wrong window",
-  paste0("published app. fig. E.3 caption, p. 37", "\n\n",
-         "published app. fig. E.4 caption, p. 38"),
+  paste0("p. 37, app. Figure E.3 caption", "\n\n",
+         "p. 38, app. Figure E.4 caption"),
   paste0(
     "Figure E.3: Uses of Force per 1000 Officers, [[90 days before and after]] BWC deployment, broken out by police district. This figure plots pre- and post-treatment uses of force for both control and treatment group officers in each police district. As the chart indicates, there is no statistically significant difference between the two groups in either [[the 90-day period]] before or after the deployment of BWCs (which occurs on day 0).",
     "\n\n",
@@ -182,54 +229,9 @@ entries <- tribble(
       "bands rather than at an estimate.")),
   "figure_e3_window;figure_e4_window", NA_character_,
 
-  2, "quantity", "pipeline", "full",
-  str_glue("Treatment officers uploaded about {f0(videos_treated)} videos a year, not about 665"),
-  "published p. 10330",
-  "On average, treatment officers uploaded about [[665]] videos annually (compared with 14 videos uploaded among control officers).",
-  str_glue("On average, treatment officers uploaded about [[{f0(videos_treated)}]] videos annually (compared with {f0(videos_control)} videos uploaded among control officers)."),
-  paste0(
-    str_glue(
-      "The article's own supplementary Table C.37 gives the same quantity. Its control mean ",
-      "is {f1(c37_control)} videos a year and its estimated effect of being assigned a camera ",
-      "is {f1(c37_effect)}, which sum to {f1(table_implied)}. Computed directly on the ",
-      "analysis sample, the inverse-probability-weighted mean among officers assigned a ",
-      "camera is {f1(videos_treated)}. No sample or weighting scheme in the deposit returns ",
-      "665: dropping the weights gives {f1(videos_treated_unweighted)} on the seven patrol ",
-      "districts, and taking all {n_trial} officers in the trial gives ",
-      "{f1(videos_trial_weighted)} weighted and {f1(videos_trial_unweighted)} unweighted. The ",
-      "control figure of {f0(videos_control)} is unchanged and is restated above only because ",
-      "it sits in the same sentence."),
-    "\n\n",
-    str_glue(
-      "The manipulation check the sentence supports is unaffected: officers assigned a camera ",
-      "uploaded roughly {f0(videos_treated / videos_control)} times as many videos as control ",
-      "officers, and the difference is significant at any conventional level.")),
-  "methods_videos_treatment", f0(videos_treated),
-
-  3, "quantity", "pipeline", "full",
-  str_glue("{pilot_control} officers in the pilot were not given cameras, not 180"),
-  "published app. A, p. 3, and in the pre-analysis plan the supplement reproduces, app. p. 47",
-  "In June 2015, eligible officers in these two districts were randomly assigned to receive a BWC or not: 325 officers were outfitted with BWCs, while [[180]] were not given cameras (the \"control\" group).",
-  str_glue("In June 2015, eligible officers in these two districts were randomly assigned to receive a BWC or not: {pilot_bwc} officers were outfitted with BWCs, while [[{pilot_control}]] were not given cameras (the \"control\" group)."),
-  paste0(
-    str_glue(
-      "The two pilot districts are {pilot_line} in the supplement's own Table A.1. Their camera ",
-      "counts sum to {pilot_bwc}, which is exactly the figure the sentence gives; their control ",
-      "counts sum to {pilot_control}. The deposited officer file agrees with Table A.1 on both, ",
-      "carrying {pilot_control} control and {pilot_bwc} camera officers across the two ",
-      "districts. Nothing else in the article depends on the pilot's control count."),
-    "\n\n",
-    str_glue(
-      "The sentence appears twice in the supplement, word for word. Appendix A carries it on ",
-      "p. 3, and the pre-analysis plan the supplement reproduces carries it again on p. 47, ",
-      "with the same figure of 180. The second occurrence was found by the remastered ",
-      "edition's builder, which searches the supplement's own text layer for every entry it ",
-      "is about to flag rather than trusting a page number, and it is corrected here as well.")),
-  "appendix_pilot_control", as.character(pilot_control),
-
   4, "cross_reference", "pipeline", "full",
   str_glue("The alternate measurement plots are in Appendix {alternate_letter}, not in a Section 4"),
-  "published app. A.1, p. 5",
+  "p. 5, app. A.1",
   "The coefficient plots for each of the outcomes using this alternate measurement strategy are provided in [[Section 4]].",
   str_glue("The coefficient plots for each of the outcomes using this alternate measurement strategy are provided in [[Appendix {alternate_letter}]]."),
   str_glue(
@@ -248,7 +250,7 @@ entries <- tribble(
   # nobody would quote a sentence for it.
   5, "spelling", "reading", "brief",
   "The run-in heading of the data availability statement is misspelled",
-  "published p. 10330",
+  "p. 10330",
   "[[Data Availablity.]]",
   "[[Data Availability.]]",
   "",
@@ -322,15 +324,26 @@ bold <- function(x) str_replace_all(x, "\\[\\[(.*?)\\]\\]", "**\\1**")
 plain <- function(x) str_remove_all(x, "\\[\\[|\\]\\]")
 ```
 
-This note lists `r spell(nrow(entries))` corrections to "A randomized control trial evaluating the effects of police body-worn cameras," published in the *Proceedings of the National Academy of Sciences* 116(21):10329--10332, doi [10.1073/pnas.1814773116](https://doi.org/10.1073/pnas.1814773116). The first covers two figure captions that misstate the window the figures cover; the second a compliance figure that disagrees with the article's own Table C.37; the third a count that disagrees with the article's own Table A.1; the fourth a cross-reference to a section the supplement does not have; the fifth a misspelling in a run-in heading. **None changes any conclusion of the paper.** Every treatment effect estimate, standard error, constant and sample size in Tables C.5 through C.37 reproduces exactly, and no estimate anywhere in the article moves.
+This note lists `r spell(nrow(entries))` corrections to "A randomized control trial evaluating the effects of police body-worn cameras," published in the *Proceedings of the National Academy of Sciences* 116(21):10329--10332, doi [10.1073/pnas.1814773116](https://doi.org/10.1073/pnas.1814773116). The first is a compliance figure that disagrees with the article's own Table C.37; the second a count that disagrees with the article's own Table A.1; the third two figure captions that misstate the window the figures cover; the fourth a cross-reference to a section the supplement does not have; the fifth a misspelling in a run-in heading. **None changes any conclusion of the paper.** Every treatment effect estimate, standard error, constant and sample size in Tables C.5 through C.37 reproduces exactly, and no estimate anywhere in the article moves.
 
 The numbers in the corrected sentences and every number in the notes beneath them are computed from the deposited replication archive ([10.17605/OSF.IO/P6VUH](https://doi.org/10.17605/OSF.IO/P6VUH)) at the time this document is rendered. The code and output supporting the corrections are at [github.com/active-maintenance-aec/yokum_ravishankar_coppock_2019](https://github.com/active-maintenance-aec/yokum_ravishankar_coppock_2019).
 
-```{r entry-1, results="asis"}
+```{r entries-1-2, results="asis"}
+# A heading is only a heading when a blank line precedes it, so each entry opens with one.
+emit <- function(i) {
+  e <- entries[i, ]
+  cat("\n\n## ", e$entry, ". ", e$title, "\n\n",
+      "> ", plain(e$published), "\n\nCorrected:\n\n> ", bold(e$corrected), "\n\n",
+      e$note, "\n", sep = "")
+}
+walk(which(entries$entry <= 2), emit)
+```
+
+```{r entry-3, results="asis"}
 # The one entry that quotes two passages: the captions of Figures E.3 and E.4 carry the
 # same error, so they are one entry whose published and corrected fields hold both
 # captions, split apart again here.
-e <- entries |> filter(entry == 1)
+e <- entries |> filter(entry == 3)
 pub <- str_split(e$published, fixed("\n\n"))[[1]]
 cor <- str_split(e$corrected, fixed("\n\n"))[[1]]
 stopifnot(length(pub) == 2, length(cor) == 2)
@@ -341,19 +354,20 @@ cat("\n\n## ", e$entry, ". ", e$title, "\n\n",
     e$note, "\n", sep = "")
 ```
 
-```{r entries-2-onward, results="asis"}
-# A heading is only a heading when a blank line precedes it, so each entry opens with one.
-walk(which(entries$entry >= 2), function(i) {
-  e <- entries[i, ]
-  cat("\n\n## ", e$entry, ". ", e$title, "\n\n",
-      "> ", plain(e$published), "\n\nCorrected:\n\n> ", bold(e$corrected), "\n\n",
-      e$note, "\n", sep = "")
-})
+```{r entries-4-onward, results="asis"}
+walk(which(entries$entry >= 4), emit)
 ```
 
 ```{r emit-spine}
 # The machine-readable spine, written wherever this document is rendered. The README reads
 # it for its count of the corrections, and any later edition reads it rather than keeping
 # its own copy, so the copies cannot drift.
+# The spine's vocabularies are closed (cleanup of 2026-11-07): a value outside them is a
+# typo, and the edition builders read these columns to shape every entry.
+stopifnot(
+  all(entries$class %in% c("quantity", "description", "interpretation", "definition", "label", "float", "cross_reference", "wording", "spelling", "typography", "bibliographic")),
+  all(entries$form %in% c("full", "brief", "note")),
+  all(entries$source %in% c("pipeline", "reading", "reference_audit", "publisher_record", "authors_archive", "proof"))
+)
 write_csv(entries, here("errata_entries.csv"))
 ```
