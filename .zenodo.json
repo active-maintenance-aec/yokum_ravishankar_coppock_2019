@@ -17,6 +17,12 @@
   ],
   "related_identifiers": [
     {
+      "identifier": "https://github.com/active-maintenance-aec/yokum_ravishankar_coppock_2019",
+      "relation": "isSupplementTo",
+      "scheme": "url",
+      "resource_type": "software"
+    },
+    {
       "identifier": "10.1073/pnas.1814773116",
       "relation": "isSupplementTo",
       "scheme": "doi"
