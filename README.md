@@ -17,6 +17,8 @@
 - [Figures](#figures)
 - [Verification](#verification)
 
+**Archived at Zenodo:** [doi:10.5281/zenodo.24168425](https://doi.org/10.5281/zenodo.24168425). This DOI always resolves to the latest release of the maintained version.
+
 This repository reproduces the published results of Yokum, Ravishankar
 and Coppock (2019), a randomized trial of police body-worn cameras
 conducted with the Metropolitan Police Department of the District of
