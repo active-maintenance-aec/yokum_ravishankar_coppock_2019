@@ -61,8 +61,10 @@ n_paper_internal <- sum(gt$defect_locus == "paper_internal", na.rm = TRUE)
 
 n_claims <- nrow(claims)
 n_blocks <- sum(claims$needs_block)
-n_float_published <- sum(coverage$published_numbers)
-n_float_covered <- sum(coverage$covered)
+# A figure prints no number on its face, so what it carries is counted in plotted, and the
+# share the rewrite reproduces in plotted_reproduced.
+n_float_published <- sum(coverage$published_numbers) + sum(coverage$plotted, na.rm = TRUE)
+n_float_covered <- sum(coverage$covered) + sum(coverage$plotted_reproduced, na.rm = TRUE)
 
 # A claim is quoted by its identifier, never selected by the value it carries.
 gt_value <- function(id, column) {
@@ -218,7 +220,7 @@ rewrite_c5 <- read_csv(here::here("maintained", "output", "table_c5_use_of_force
 # value_paper is already the string the page prints, at the page's own precision,
 # so it is shown rather than reformatted.
 published_c5 <- gt |>
-  filter(table_figure == "Table C.5", str_detect(claim, "Officer Assigned BWC")) |>
+  filter(location == "Table C.5", str_detect(claim, "Officer Assigned BWC")) |>
   mutate(outcome = str_remove(claim, ":.*"),
          quantity = if_else(str_detect(claim, "standard error"), "std_error", "estimate")) |>
   select(outcome, quantity, value_paper) |>
@@ -300,9 +302,9 @@ tibble(
 gt |>
   filter(!is.na(match_rewrite)) |>
   mutate(group = case_when(
-    str_starts(table_figure, "Table C") ~ "Appendix Tables C.5 to C.37",
-    table_figure %in% c("Table A.1", "Table A.4") ~ "Appendix Tables A.1 and A.4",
-    str_starts(table_figure, "Figure") ~ "Figure captions and plotted counts",
+    str_starts(location, "Table C") ~ "Appendix Tables C.5 to C.37",
+    location %in% c("Table A.1", "Table A.4") ~ "Appendix Tables A.1 and A.4",
+    str_starts(location, "Figure") ~ "Figure captions and plotted counts",
     .default = "Quantities stated in sentences and table notes"
   )) |>
   summarize(Rows = n(),
@@ -313,12 +315,12 @@ gt |>
   show_table("Checkable rows by where the number appears.")
 ```
 
-Every one of the `r sum(coverage$covered[str_starts(coverage$float, "table_c")])` cells the odd-numbered appendix tables print reproduces exactly, as do all `r coverage$covered[coverage$float == "table_a1"]` cells of Table A.1 and the seven of Table A.4's ten deployment dates that the deposited officer-day panel covers.
+Every one of the `r sum(coverage$covered[str_starts(coverage$float, "Table C")])` cells the odd-numbered appendix tables print reproduces exactly, as do all `r coverage$covered[coverage$float == "Table A.1"]` cells of Table A.1 and the seven of Table A.4's ten deployment dates that the deposited officer-day panel covers.
 
 ```{r gt-adverse}
 gt |>
   filter(defect_locus == "paper_internal") |>
-  transmute(Where = table_figure,
+  transmute(Where = location,
             Claim = claim,
             `Paper says` = coalesce(value_paper, "-"),
             `Data give` = case_when(
@@ -355,17 +357,18 @@ The extraction also counts what each published float prints, which is what makes
 ```{r float-coverage}
 coverage |>
   mutate(kind = case_when(
-    float %in% c("table_a1", "table_a4") ~ "Appendix Tables A.1 and A.4",
-    float %in% c("table_a2", "table_a3") ~ "Appendix Tables A.2 and A.3",
-    float %in% paste0("table_c", seq(5, 37, by = 2)) ~ "Appendix Tables C.5 to C.37, odd numbered",
-    str_starts(float, "table_c") ~ "Appendix Tables C.6 to C.36, even numbered",
-    float %in% c("figure_1", "figure_c1") ~ "Figures 1 and C.1",
+    float %in% c("Table A.1", "Table A.4") ~ "Appendix Tables A.1 and A.4",
+    float %in% c("Table A.2", "Table A.3") ~ "Appendix Tables A.2 and A.3",
+    float %in% paste0("Table C.", seq(5, 37, by = 2)) ~ "Appendix Tables C.5 to C.37, odd numbered",
+    str_starts(float, "Table C") ~ "Appendix Tables C.6 to C.36, even numbered",
+    float %in% c("Figure 1", "Figure C.1") ~ "Figures 1 and C.1",
     .default = "Figures D.2, E.3, E.4 and E.5"
   )) |>
   summarize(Floats = n(),
-            `Numbers published` = sum(published_numbers),
-            Covered = sum(covered),
-            `Reproduced by the rewrite` = sum(reproduced_by_rewrite),
+            `Numbers published` = sum(published_numbers) + sum(plotted, na.rm = TRUE),
+            Covered = sum(covered) + sum(plotted_reproduced, na.rm = TRUE),
+            `Reproduced by the rewrite` = sum(reproduced_by_rewrite) +
+              sum(plotted_reproduced, na.rm = TRUE),
             .by = kind) |>
   rename(`Published float` = kind) |>
   show_table("What each published float prints, and how much of it the ground truth compares. The two coefficient plots print no estimate on their faces, so their count is what they plot.")

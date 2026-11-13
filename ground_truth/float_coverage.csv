@@ -1,44 +1,44 @@
-float,published_numbers,basis,covered,reproduced_by_rewrite,reproduced_by_archive
-table_a1,36,published cells,36,36,0
-table_a2,16,no comparable number,0,0,0
-table_a3,4,no comparable number,0,0,0
-table_a4,10,published cells,10,7,0
-figure_1,6,"plotted estimates, unadjusted series only",3,3,0
-figure_c1,90,"plotted estimates, unadjusted series only",45,45,0
-figure_d2,90,no comparable number,0,0,0
-figure_e3,0,no comparable number,0,0,0
-figure_e4,0,no comparable number,0,0,0
-figure_e5,0,no comparable number,0,0,0
-table_c5,18,published cells,18,18,2
-table_c6,48,no comparable number,0,0,0
-table_c7,12,published cells,12,12,2
-table_c8,32,no comparable number,0,0,0
-table_c9,18,published cells,18,18,3
-table_c10,48,no comparable number,0,0,0
-table_c11,18,published cells,18,18,4
-table_c12,48,no comparable number,0,0,0
-table_c13,17,published cells,17,17,6
-table_c14,45,no comparable number,0,0,0
-table_c15,18,published cells,18,18,3
-table_c16,48,no comparable number,0,0,0
-table_c17,17,published cells,17,17,8
-table_c18,45,no comparable number,0,0,0
-table_c19,24,published cells,24,24,1
-table_c20,64,no comparable number,0,0,0
-table_c21,18,published cells,18,18,3
-table_c22,48,no comparable number,0,0,0
-table_c23,18,published cells,18,18,3
-table_c24,48,no comparable number,0,0,0
-table_c25,30,published cells,30,30,4
-table_c26,72,no comparable number,0,0,0
-table_c27,30,published cells,30,30,5
-table_c28,80,no comparable number,0,0,0
-table_c29,12,published cells,12,12,2
-table_c30,32,no comparable number,0,0,0
-table_c31,6,published cells,6,6,1
-table_c32,16,no comparable number,0,0,0
-table_c33,6,published cells,6,6,1
-table_c34,16,no comparable number,0,0,0
-table_c35,6,published cells,6,6,1
-table_c36,16,no comparable number,0,0,0
-table_c37,12,published cells,12,12,4
+float,published_numbers,covered,reproduced_by_rewrite,reproduced_by_archive,plotted,plotted_reproduced,note
+Table A.1,36,36,36,0,NA,NA,NA
+Table A.2,16,0,0,0,NA,NA,Not reproducible: officer race and sex are not in the deposit.
+Table A.3,4,0,0,0,NA,NA,Not reproducible: officer length of service is not in the deposit.
+Table A.4,10,10,7,0,NA,NA,"The three special-unit dates have no source in the deposit, whose officer-day panel covers the seven patrol districts only."
+Figure 1,0,0,0,0,6,3,Prints no number on its face. Only the unadjusted series is reproducible; the covariate-adjusted series conditions on officer covariates the deposit cannot contain.
+Table C.5,18,18,18,2,NA,NA,NA
+Table C.6,48,0,0,0,NA,NA,"Not reproducible: every column conditions on officer gender, race, and length of service, which the deposit cannot contain."
+Table C.7,12,12,12,2,NA,NA,NA
+Table C.8,32,0,0,0,NA,NA,"Not reproducible: every column conditions on officer gender, race, and length of service, which the deposit cannot contain."
+Table C.9,18,18,18,3,NA,NA,NA
+Table C.10,48,0,0,0,NA,NA,"Not reproducible: every column conditions on officer gender, race, and length of service, which the deposit cannot contain."
+Table C.11,18,18,18,4,NA,NA,NA
+Table C.12,48,0,0,0,NA,NA,"Not reproducible: every column conditions on officer gender, race, and length of service, which the deposit cannot contain."
+Table C.13,17,17,17,6,NA,NA,NA
+Table C.14,45,0,0,0,NA,NA,"Not reproducible: every column conditions on officer gender, race, and length of service, which the deposit cannot contain."
+Table C.15,18,18,18,3,NA,NA,NA
+Table C.16,48,0,0,0,NA,NA,"Not reproducible: every column conditions on officer gender, race, and length of service, which the deposit cannot contain."
+Table C.17,17,17,17,8,NA,NA,NA
+Table C.18,45,0,0,0,NA,NA,"Not reproducible: every column conditions on officer gender, race, and length of service, which the deposit cannot contain."
+Table C.19,24,24,24,1,NA,NA,NA
+Table C.20,64,0,0,0,NA,NA,"Not reproducible: every column conditions on officer gender, race, and length of service, which the deposit cannot contain."
+Table C.21,18,18,18,3,NA,NA,NA
+Table C.22,48,0,0,0,NA,NA,"Not reproducible: every column conditions on officer gender, race, and length of service, which the deposit cannot contain."
+Table C.23,18,18,18,3,NA,NA,NA
+Table C.24,48,0,0,0,NA,NA,"Not reproducible: every column conditions on officer gender, race, and length of service, which the deposit cannot contain."
+Table C.25,30,30,30,4,NA,NA,NA
+Table C.26,72,0,0,0,NA,NA,"Not reproducible: every column conditions on officer gender, race, and length of service, which the deposit cannot contain."
+Table C.27,30,30,30,5,NA,NA,NA
+Table C.28,80,0,0,0,NA,NA,"Not reproducible: every column conditions on officer gender, race, and length of service, which the deposit cannot contain."
+Table C.29,12,12,12,2,NA,NA,NA
+Table C.30,32,0,0,0,NA,NA,"Not reproducible: every column conditions on officer gender, race, and length of service, which the deposit cannot contain."
+Table C.31,6,6,6,1,NA,NA,NA
+Table C.32,16,0,0,0,NA,NA,"Not reproducible: every column conditions on officer gender, race, and length of service, which the deposit cannot contain."
+Table C.33,6,6,6,1,NA,NA,NA
+Table C.34,16,0,0,0,NA,NA,"Not reproducible: every column conditions on officer gender, race, and length of service, which the deposit cannot contain."
+Table C.35,6,6,6,1,NA,NA,NA
+Table C.36,16,0,0,0,NA,NA,"Not reproducible: every column conditions on officer gender, race, and length of service, which the deposit cannot contain."
+Table C.37,12,12,12,4,NA,NA,NA
+Figure C.1,0,0,0,0,90,45,Prints no number on its face. Only the unadjusted series is reproducible; the covariate-adjusted series conditions on officer covariates the deposit cannot contain.
+Figure D.2,0,0,0,0,90,0,Prints no number on its face. Nothing in the deposit supports the alternate measurement strategy.
+Figure E.3,0,0,0,0,NA,NA,"Prints no number on its face beyond its axis breaks, and its plotted points are too densely overlaid to be counted from the page."
+Figure E.4,0,0,0,0,NA,NA,"Prints no number on its face beyond its axis breaks, and its plotted points are too densely overlaid to be counted from the page."
+Figure E.5,0,0,0,0,NA,NA,Prints no number on its face. The calls-for-service series it plots is not in the deposit.

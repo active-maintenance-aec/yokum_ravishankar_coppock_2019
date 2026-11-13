@@ -1,0 +1,11 @@
+pass,script,role,exit_status,outcome,stopped_at
+as_shipped,coefplot_all_dvs.R,analysis,0,clean,NA
+as_shipped,coefplot_main_dvs.R,analysis,0,clean,NA
+as_shipped,regression_tables.R,analysis,1,error,"Error: `starprep()` was removed in estimatr 2.0. It prepared fits for stargazer, which is no longer maintained. Use modelsummary, which reads `tidy()` and `glance()` and so works on every estimator in this package:"
+as_shipped,time_series_plot.R,analysis,0,clean,NA
+as_shipped,regression_tables_cov.R,analysis,NA,not_run,Listed in the deposit's README.txt but absent from the deposit
+stripped,coefplot_all_dvs.R,analysis,0,clean,NA
+stripped,coefplot_main_dvs.R,analysis,0,clean,NA
+stripped,regression_tables.R,analysis,1,error,"Error: `starprep()` was removed in estimatr 2.0. It prepared fits for stargazer, which is no longer maintained. Use modelsummary, which reads `tidy()` and `glance()` and so works on every estimator in this package:"
+stripped,time_series_plot.R,analysis,0,clean,NA
+stripped,regression_tables_cov.R,analysis,NA,not_run,Listed in the deposit's README.txt but absent from the deposit

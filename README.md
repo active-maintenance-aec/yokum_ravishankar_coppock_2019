@@ -17,7 +17,10 @@
 - [Figures](#figures)
 - [Verification](#verification)
 
-**Archived at Zenodo:** [doi:10.5281/zenodo.24168425](https://doi.org/10.5281/zenodo.24168425). This DOI always resolves to the latest release of the maintained version.
+**Archived at Zenodo:**
+[doi:10.5281/zenodo.24168425](https://doi.org/10.5281/zenodo.24168425).
+This DOI always resolves to the latest release of the maintained
+version.
 
 This repository reproduces the published results of Yokum, Ravishankar
 and Coppock (2019), a randomized trial of police body-worn cameras
@@ -72,7 +75,7 @@ can also be run on its own.
 # Summary
 
 **Does the deposited archive run?** Yes. All four deposited scripts
-execute at exit status 0 under R 4.6.0 and current package versions. The
+execute at exit status 0 under R 4.6.2 and current package versions. The
 only complaints are a deprecation warning and a layout warning, both
 from the two coefficient plot scripts.
 
@@ -332,11 +335,11 @@ covers.
 
 | Where | Claim | Paper says | Data give |
 |:---|:---|:---|:---|
-| Figure E.3 | Days before and after deployment the figure covers | 90 | FALSE |
-| Figure E.4 | Days before and after deployment the figure covers | 90 | FALSE |
-| Text, Methods | Videos per year, officers assigned a camera | 665 | 663.1 |
-| Text, Appendix A | Pilot officers not given cameras | 180 | 178.0 |
-| Text, Appendix A.1 | The alternate measurement plots are said to be in Section 4 | \- | FALSE |
+| Figure E.3 caption (p. 37) | Days before and after deployment the figure covers | 90 | FALSE |
+| Figure E.4 caption (p. 38) | Days before and after deployment the figure covers | 90 | FALSE |
+| Methods (p. 2) | Videos per year, officers assigned a camera | 665 | 663.1 |
+| Appendix A (p. 3) | Pilot officers not given cameras | 180 | 178.0 |
+| Appendix A.1 (p. 5) | The alternate measurement plots are said to be in Section 4 | \- | FALSE |
 
 The rows where the paper disagrees with itself. Each is corrected in the
 errata.
@@ -399,9 +402,9 @@ what makes partial coverage visible.
 | Appendix Tables A.1 and A.4 | 2 | 46 | 46 | 43 |
 | Appendix Tables A.2 and A.3 | 2 | 20 | 0 | 0 |
 | Figures 1 and C.1 | 2 | 96 | 48 | 48 |
-| Figures D.2, E.3, E.4 and E.5 | 4 | 90 | 0 | 0 |
 | Appendix Tables C.5 to C.37, odd numbered | 17 | 280 | 280 | 280 |
 | Appendix Tables C.6 to C.36, even numbered | 16 | 706 | 0 | 0 |
+| Figures D.2, E.3, E.4 and E.5 | 4 | 90 | 0 | 0 |
 
 What each published float prints, and how much of it the ground truth
 compares. The two coefficient plots print no estimate on their faces, so
@@ -532,18 +535,18 @@ not list has appeared. The deposit’s own scripts are never executed
 inside `original/`, which is what a checksum gate placed after the fact
 would fail to catch.
 
-| Package    | Version    |
-|:-----------|:-----------|
-| tidyverse  | 2.0.0      |
-| estimatr   | 2.0.0.9000 |
-| broom      | 1.0.13     |
-| ggplot2    | 4.0.3      |
-| readr      | 2.2.0      |
-| dplyr      | 1.2.1      |
-| purrr      | 1.2.2      |
-| knitr      | 1.51       |
-| kableExtra | 1.4.0      |
-| here       | 1.0.2      |
-| openssl    | 2.4.2      |
+| Package    | Version |
+|:-----------|:--------|
+| tidyverse  | 2.0.0   |
+| estimatr   | 2.0.1   |
+| broom      | 1.0.13  |
+| ggplot2    | 4.0.3   |
+| readr      | 2.2.0   |
+| dplyr      | 1.2.1   |
+| purrr      | 1.2.2   |
+| knitr      | 1.52    |
+| kableExtra | 1.4.1   |
+| here       | 1.0.2   |
+| openssl    | 2.5.0   |
 
-R environment. Rendered under R version 4.6.0 (2026-04-24).
+R environment. Rendered under R version 4.6.2 (2026-10-29).
