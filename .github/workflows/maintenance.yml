@@ -5,7 +5,7 @@ name: maintenance
 
 on:
   schedule:
-    - cron: "47 6 * * 5"
+    - cron: "47 6 * * 6"
   workflow_dispatch:
 
 permissions:
@@ -16,4 +16,4 @@ jobs:
   check:
     uses: active-maintenance-aec/maintenance/.github/workflows/check.yml@main
     with:
-      phase: 7
+      phase: 0
